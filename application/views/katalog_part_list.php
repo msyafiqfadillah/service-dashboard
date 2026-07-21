@@ -136,28 +136,27 @@
                     orderable: false,
                     render: function(data, type, row, meta) {
                         let badgeClass = 'green';
+
                         if (data === 0) badgeClass = 'red';
                         else if (data <= 10) badgeClass = 'yellow';
+                        
                         return `<span class="badge-stock ${badgeClass}">${data}</span>`;
                     }
                 },
-                // { 
-                //     data: null, 
-                //     orderable: false,
-                //     render: function(data, type, row) {
-                //         const rowDataAttr = encodeURIComponent(JSON.stringify(row));
-                //         return `
-                //             <div class="action-btns" style="justify-content: center;">
-                //                 <button class="btn-action-icon btn-view-populasi" data-row="${rowDataAttr}" title="Lihat Populasi Unit Customer">
-                //                     <i class="fa-regular fa-eye"></i>
-                //                 </button>
-                //                 <button class="btn-action-icon btn-copy-info" data-code="${row.partCode}" title="Copy Part Code">
-                //                     <i class="fa-regular fa-copy"></i>
-                //                 </button>
-                //             </div>
-                //         `;
-                //     }
-                // }
+                {
+                    data: null, 
+                    orderable: false,
+                    render: function(data, type, row) {
+                        const rowDataAttr = encodeURIComponent(JSON.stringify(row));
+                        return `
+                            <div class="action-btns" style="justify-content: center;">
+                                <button class="btn-action-icon btn-view-populasi" data-row="${rowDataAttr}" title="Lihat Populasi Unit Customer">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
             ],
             language: {
                 info: "Showing _START_ to _END_ of _TOTAL_ entries",
