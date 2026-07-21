@@ -91,6 +91,13 @@ body {
     letter-spacing: -0.5px;
 }
 
+.brand-logo-img {
+    height: 34px;
+    width: auto;
+    border-radius: 6px;
+    object-fit: contain;
+}
+
 .brand-text {
     display: flex;
     flex-direction: column;
@@ -366,7 +373,7 @@ body {
 .btn-reset {
     background: transparent;
     border: 1px solid var(--border-color);
-    color: var(--accent-blue);
+    color: var(--accent-blue) !important;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.83rem;
@@ -377,11 +384,14 @@ body {
     gap: 6px;
     transition: all 0.2s;
     white-space: nowrap;
+    text-decoration: none !important;
 }
 
 .btn-reset:hover {
     background: #EFF6FF;
     border-color: var(--accent-blue);
+    color: var(--accent-blue) !important;
+    text-decoration: none !important;
 }
 
 /* DATA TABLE CARD */
@@ -448,7 +458,7 @@ body {
 
 .btn-export {
     background-color: var(--accent-blue);
-    color: #FFFFFF;
+    color: #FFFFFF !important;
     border: none;
     padding: 0.45rem 0.95rem;
     border-radius: 8px;
@@ -459,10 +469,13 @@ body {
     align-items: center;
     gap: 6px;
     transition: background-color 0.2s;
+    text-decoration: none !important;
 }
 
 .btn-export:hover {
     background-color: var(--accent-blue-hover);
+    color: #FFFFFF !important;
+    text-decoration: none !important;
 }
 
 /* CUSTOM DATATABLE STYLING */
@@ -634,14 +647,14 @@ table.dataTable tbody tr:hover td {
     display: none !important;
 }
 
-/* OFF-CANVAS / SIDE DRAWER FOR POPULASI UNIT (MATCHING IMAGE 2) */
+/* OFF-CANVAS / SIDE DRAWER FOR POPULASI UNIT (LIGHT THEME WHITE) */
 .drawer-backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(2px);
     z-index: 1040;
     display: none;
@@ -660,10 +673,11 @@ table.dataTable tbody tr:hover td {
     right: -480px;
     width: 460px;
     height: 100vh;
-    background-color: #0B101D;
-    color: #F8FAFC;
+    background-color: #FFFFFF;
+    color: #0F172A;
     z-index: 1050;
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+    border-left: 1px solid #E2E8F0;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -675,9 +689,9 @@ table.dataTable tbody tr:hover td {
 
 .drawer-header {
     padding: 1.5rem 1.5rem 1.25rem 1.5rem;
-    border-bottom: 1px solid #1A233A;
+    border-bottom: 1px solid #E2E8F0;
     position: relative;
-    background: #0B101D;
+    background: #FFFFFF;
 }
 
 .drawer-header .btn-close-drawer {
@@ -693,7 +707,7 @@ table.dataTable tbody tr:hover td {
 }
 
 .drawer-header .btn-close-drawer:hover {
-    color: #F8FAFC;
+    color: #0F172A;
 }
 
 .drawer-sub-title {
@@ -708,13 +722,13 @@ table.dataTable tbody tr:hover td {
 .drawer-part-code {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #FFFFFF;
+    color: #0F172A;
     line-height: 1.1;
 }
 
 .drawer-part-desc {
     font-size: 0.85rem;
-    color: #94A3B8;
+    color: #64748B;
     margin-top: 0.25rem;
     font-weight: 500;
 }
@@ -724,7 +738,7 @@ table.dataTable tbody tr:hover td {
     gap: 2rem;
     margin-top: 1.25rem;
     padding-top: 1rem;
-    border-top: 1px solid #161F36;
+    border-top: 1px solid #E2E8F0;
 }
 
 .drawer-stat-item {
@@ -743,7 +757,7 @@ table.dataTable tbody tr:hover td {
 .drawer-stat-item .val {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #FFFFFF;
+    color: #0F172A;
     margin-top: 2px;
 }
 
@@ -757,7 +771,7 @@ table.dataTable tbody tr:hover td {
     width: 5px;
 }
 .drawer-body::-webkit-scrollbar-thumb {
-    background: #1E2842;
+    background: #CBD5E1;
     border-radius: 4px;
 }
 
@@ -789,8 +803,8 @@ table.dataTable tbody tr:hover td {
 }
 
 .unit-card-item {
-    background-color: #12182B;
-    border: 1px solid #1E2842;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
     border-radius: 10px;
     padding: 0.9rem 1.1rem;
     display: flex;
@@ -800,8 +814,8 @@ table.dataTable tbody tr:hover td {
 }
 
 .unit-card-item:hover {
-    background-color: #182038;
-    border-color: #2A3759;
+    background-color: #EFF6FF;
+    border-color: #BFDBFE;
 }
 
 .unit-card-info {
@@ -812,7 +826,7 @@ table.dataTable tbody tr:hover td {
 .unit-card-customer {
     font-size: 0.88rem;
     font-weight: 700;
-    color: #FFFFFF;
+    color: #0F172A;
 }
 
 .unit-card-serial {
@@ -824,6 +838,6 @@ table.dataTable tbody tr:hover td {
 .unit-card-hm {
     font-size: 0.83rem;
     font-weight: 600;
-    color: #94A3B8;
+    color: #2563EB;
     white-space: nowrap;
 }
