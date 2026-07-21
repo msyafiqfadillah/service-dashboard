@@ -1,7 +1,7 @@
 <aside class="sidebar">
     <div class="brand">
         <div class="brand-info">
-            <div class="brand-logo">fmm</div>
+            <img class="brand-logo-img" src="<?php echo base_url(); ?>assets/images/logo.png" alt="FMM Logo" />
             <div class="brand-text">
                 <span class="brand-title">FMM Service Dashboard</span>
             </div>
