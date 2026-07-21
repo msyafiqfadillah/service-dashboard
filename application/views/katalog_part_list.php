@@ -202,13 +202,17 @@
             },
             dataType: 'json',
             success: function(res) {
-                if (res.status && res.data && res.data.length > 0) {
-                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (${res.data.length})`);
+                const listData = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+                
+                if (listData.length > 0) {
+                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (${listData.length})`);
+                    
                     let html = '';
-                    res.data.forEach(item => {
+                    
+                    listData.forEach(item => {
                         const custName = item.CustomerName || 'CUSTOMER SWASTA';
-                        const serial = item.SerialNumber ? `Serial ${item.SerialNumber}` : `Serial ${partData.unitCode}-1001`;
-                        const hm = (item.HourMeter || 3968) + ' jam';
+                        const serial = item.SerialNumber ? `Serial ${item.SerialNumber}` : (item.InventoryName ? item.InventoryName : `Serial ${partData.unitCode || ''}`);
+                        const hm = item.HourMeter ? (item.HourMeter + ' jam') : (item.BranchID ? `Branch ${item.BranchID}` : '-');
                         
                         html += `
                             <div class="unit-card-item">
@@ -222,37 +226,12 @@
                     });
                     $('#drawerUnitList').html(html);
                 } else {
-                    // Fallback Demo Cards matching Image 2
-                    const demoUnits = [
-                        { name: 'PT INDOLAKTO', serial: 'Serial RM45IE-1140', hm: '3.968 jam' },
-                        { name: 'PT TAMBANG RAYA USAHA TAMA', serial: 'Serial RM37TF-1119', hm: '13.936 jam' },
-                        { name: 'PT INDONESIA PRATAMA', serial: 'Serial RM45IE-1139', hm: '3.888 jam' },
-                        { name: 'PT BINA KARYA PRIMA', serial: 'Serial RM75I-1169', hm: '17.888 jam' },
-                        { name: 'PT TANTRA TEXTILE INDUSTRY', serial: 'Serial RM75IE-1176', hm: '5.872 jam' },
-                        { name: 'PT INDUSTRI KEMASAN SEMEN GRESIK', serial: 'Serial RM55I-1145', hm: '19.776 jam' },
-                        { name: 'PT SEKAR BENGAWAN', serial: 'Serial RM75IE-1175', hm: '7.760 jam' },
-                        { name: 'PT JAKARTA PRIMA CRANES', serial: 'Serial RM37TF-1120', hm: '3.744 jam' },
-                        { name: 'PT THIESS CONTRACTOR INDONESIA', serial: 'Serial RM75I-1165', hm: '15.616 jam' }
-                    ];
-
-                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (${demoUnits.length})`);
-                    let html = '';
-                    demoUnits.forEach(item => {
-                        html += `
-                            <div class="unit-card-item">
-                                <div class="unit-card-info">
-                                    <div class="unit-card-customer">${item.name}</div>
-                                    <div class="unit-card-serial">${item.serial}</div>
-                                </div>
-                                <div class="unit-card-hm">${item.hm}</div>
-                            </div>
-                        `;
-                    });
-                    $('#drawerUnitList').html(html);
+                    $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
+                    $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Tidak ada unit customer yang terdaftar untuk unit ini.</div>');
                 }
             },
             error: function() {
-                $('#drawerUnitList').html('<div style="color: #EF4444; padding: 1rem; text-align: center;">Gagal memuat data populasi.</div>');
+                $('#drawerUnitList').html('<div style="color: #EF4444; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Gagal memuat data populasi unit.</div>');
             }
         });
     };

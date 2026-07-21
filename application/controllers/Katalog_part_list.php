@@ -30,10 +30,9 @@
         }
 
         public function get_populasi_unit() {
-            $unitInventoryId = $this->input->post('unitInventoryId');
-            $partInventoryId = $this->input->post('partInventoryId');
+            $unitId = $this->input->post('unitId');
 
-            $result = $this->Unit_model->get_populasi_unit($unitInventoryId, $partInventoryId);
+            $result = $this->Unit_model->get_populasi_unit($unitId);
 
             echo json_encode($result);
         }
