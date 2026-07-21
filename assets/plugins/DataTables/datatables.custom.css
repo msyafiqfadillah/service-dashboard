@@ -1,0 +1,52 @@
+.dataTables_wrapper .dataTables_length select {
+	margin: 0 5px
+}
+.dataTables_wrapper .dataTables_length option {
+	font-family: 'Segoe UI', Tahoma;
+}
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+	border: 1px solid #ccc;
+	color: #333;
+	height: 24px;
+}
+.dataTables_wrapper .dataTables_filter input[type=search] {
+	padding: 3px 5px;
+	width: 175px;
+}
+.dataTables_paginate {
+	margin-top: 5px
+}
+.dataTables_info {
+	color: #777 !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+	padding: 0.3em 0.7em;
+}
+.dataTable tbody td {
+	padding: 6px 8px !important;
+}
+.dataTable-custom-checkbox {
+	line-height: 12px;
+	margin-top: -12px;
+	min-height: 12px;
+	padding-left: 32px;
+}
+tr.dataTable-highlight:nth-child(odd) td {
+	background: #ffa;
+}
+tr.dataTable-highlight:nth-child(odd) td.sorting_1 {
+	background: #ff8 !important;
+}
+tr.dataTable-highlight:nth-child(even) td {
+	background: #ffc;
+}
+tr.dataTable-highlight:nth-child(even) td.sorting_1 {
+	background: #ffa !important;
+}
+.dataTables_length .btn {
+	margin-top: -2px;
+}
+.select2-container--default.select2-container--disabled .select2-selection--single {
+	border-color: #eee;
+}

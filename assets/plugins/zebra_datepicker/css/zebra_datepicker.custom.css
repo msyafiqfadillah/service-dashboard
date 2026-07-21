@@ -1,0 +1,11 @@
+.Zebra_DatePicker_Icon:active,
+.Zebra_DatePicker_Icon:focus {
+	outline: none;
+}
+.Zebra_DatePicker th,
+.Zebra_DatePicker td {
+	font: 12px 'Open Sans';
+	padding: 5px 3px;
+	min-width: 22px;
+	width: 22px;
+}
