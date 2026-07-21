@@ -83,10 +83,10 @@
         </ul>
     </div>
 
-    <div class="sidebar-footer">
+    <!-- <div class="sidebar-footer">
         <a href="<?= site_url('auth/logout') ?>" class="logout-item">
             <span class="menu-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
             Logout
         </a>
-    </div>
+    </div> -->
 </aside>

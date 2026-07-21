@@ -34,7 +34,7 @@
 
 		<div id="main-container" class="container-fluid main-content">
 			<!-- TOP NAVBAR CONTROLS -->
-			<div class="top-navbar">
+			<!-- <div class="top-navbar">
 				<button class="icon-btn" title="Toggle Theme">
 					<i class="fa-regular fa-sun"></i>
 				</button>
@@ -46,7 +46,7 @@
 					<div class="avatar-circle">AD</div>
 					<i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
 				</div>
-			</div>
+			</div> -->
 
 			<?php if (isset($content)) $this->load->view($content); ?>
 		</div>
