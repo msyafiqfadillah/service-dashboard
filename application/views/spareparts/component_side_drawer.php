@@ -44,12 +44,12 @@
 
 <script>
     // Open & Close Side Drawer Logic
-    const openDrawer = (partData) => {
+    const openDrawer = (partData) => {       
         const partCd = partData.partCd || partData.InventoryID || '-';
         const partDesc = partData.partDesc || partData.InventoryName || '-';
         const qtyOnHand = partData.qtyOnHand || 0;
         const frame = partData.frame || '-';
-        const targetUnitId = partData.unitId || partData.InventoryID;
+        const frameId = partData.frameId;
 
         $('#drawerPartCode').text(partCd);
         $('#drawerPartDesc').text(partDesc);
@@ -66,7 +66,7 @@
         $('#drawerBackdrop').addClass('show');
         $('#sideDrawer').addClass('show');
 
-        if (!targetUnitId) {
+        if (!frameId) {
             $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
             $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Tidak ada unit customer yang terdaftar untuk unit ini.</div>');
             return;
@@ -74,11 +74,9 @@
 
         // Fetch Populasi Unit Data via AJAX
         $.ajax({
-            url: '<?php echo $data["populasi_unit_url"]; ?>',
+            url: '<?php echo $url_target; ?>',
             type: 'POST',
-            data: {
-                unitId: targetUnitId
-            },
+            data: { frameId },
             dataType: 'json',
             success: function(res) {
                 const listData = Array.isArray(res) ? res : (res && res.data ? res.data : []);
@@ -94,7 +92,8 @@
                         const serialNum = item.SerialNumber && item.SerialNumber.trim().length > 0 ? `Serial ${item.SerialNumber}` : "-";
                         const rawHours = parseFloat(item.HoursMeter);
                         const hours = (!isNaN(rawHours) && rawHours > 0) ? Math.round(rawHours) : 0;
-                        const serialInfo = `${serialNum} • ${hours.toLocaleString('id-ID')} jam`;
+                        const serialInfo = `${serialNum} • ${item.InventoryCD}`;
+                        const runningHours = `${hours.toLocaleString('id-ID')} jam`;
 
                         const hm = (item.BranchCD ? item.BranchCD.trim() : '-');
                         
@@ -106,6 +105,7 @@
                                         <span class="unit-card-customer-code">${custCode}</span>
                                     </div>
                                     <div class="unit-card-serial">${serialInfo}</div>
+                                    <div class="unit-card-running-hours">${runningHours}</div>
                                 </div>
                                 <div class="unit-card-hm">${hm}</div>
                             </div>
