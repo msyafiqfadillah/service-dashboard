@@ -34,6 +34,8 @@
     </table>
 </div>
 
+<?php $this->load->view('spareparts/component_side_drawer', array("url_target" => $data["populasi_unit_url"])); ?>
+
 <script>
     const loadingHtml = `
         <tr>
@@ -123,5 +125,3 @@
         generate_stok_gudang();
     });
 </script>
-
-<?php $this->load->view('spareparts/component_side_drawer'); ?>
