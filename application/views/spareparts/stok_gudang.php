@@ -75,7 +75,10 @@
                     className: "text-center",
                     render: function(data, type, row, meta) {
                         let badgeClass = 'green';
-                        if (data <= 1) badgeClass = 'yellow';
+
+                        if (data === 0) badgeClass = 'red';
+                        else if (data <= 10) badgeClass = 'yellow';
+                        
                         return `<span class="badge-stock ${badgeClass}">${data}</span>`;
                     }
                 },
