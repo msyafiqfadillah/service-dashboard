@@ -51,13 +51,13 @@
         <div class="menu-title">SPAREPART</div>
         <ul class="menu-list">
             <li>
-                <a href="<?= site_url('katalog_part_list') ?>" class="menu-item <?= (isset($active_menu) && ($active_menu == 'katalog' || $active_menu == 'katalog_part_list')) ? 'active' : '' ?>">
+                <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="menu-item <?= (isset($active_menu) &&  $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-cube"></i></span>
                     Katalog Parts
                 </a>
             </li>
             <li>
-                <a href="<?= site_url('dashboard/stok') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'stok') ? 'active' : '' ?>">
+                <a href="<?= site_url('spareparts/stok_gudang') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/stok_gudang') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-cubes"></i></span>
                     Stok Gudang
                 </a>
