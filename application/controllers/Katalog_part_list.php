@@ -5,8 +5,7 @@
         function __construct() {
             parent::__construct();
 
-            $this->load->model("Part_model");
-            $this->load->model("Unit_model");
+            $this->load->model("Inventory_model");
         }
 
         public function index() {
@@ -24,7 +23,7 @@
         }
 
         public function get_part_list() {
-            $result = $this->Part_model->get_part_list();
+            $result = $this->Inventory_model->get_part_list();
 
             echo json_encode($result);
         }
@@ -32,7 +31,7 @@
         public function get_populasi_unit() {
             $unitId = $this->input->post('unitId');
 
-            $result = $this->Unit_model->get_populasi_unit($unitId);
+            $result = $this->Inventory_model->get_populasi_unit($unitId);
 
             echo json_encode($result);
         }
