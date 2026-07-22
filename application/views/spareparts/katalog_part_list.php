@@ -67,35 +67,7 @@
     </table>
 </div>
 
-<!-- OFF-CANVAS SIDE DRAWER FOR POPULASI UNIT (MATCHING IMAGE 2) -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="side-drawer" id="sideDrawer">
-    <div class="drawer-header">
-        <button class="btn-close-drawer" id="btnCloseDrawer"><i class="fa-solid fa-xmark"></i></button>
-        <div class="drawer-sub-title">POTENSI JUAL PART</div>
-        <div class="drawer-part-code" id="drawerPartCode">-</div>
-        <div class="drawer-part-desc" id="drawerPartDesc">-</div>
-        
-        <div class="drawer-stats-row">
-            <div class="drawer-stat-item">
-                <span class="lbl">STOK GUDANG</span>
-                <span class="val" id="drawerStok">-</span>
-            </div>
-            <div class="drawer-stat-item">
-                <span class="lbl">MODEL COCOK</span>
-                <span class="val" id="drawerModel">-</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="drawer-body">        
-        <div class="drawer-section">      
-            <div class="unit-card-list" id="drawerUnitList">
-                <!-- Unit Cards will be injected via JS -->
-            </div>
-        </div>
-    </div>
-</div>
+<?php $this->load->view('spareparts/component_side_drawer'); ?>
 
 <script>
     const loadingHtml = `
@@ -176,92 +148,8 @@
         });
     }
 
-    // Open & Close Side Drawer Logic
-    const openDrawer = (partData) => {
-        $('#drawerPartCode').text(partData.partCd || '-');
-        $('#drawerPartDesc').text(partData.partDesc || '-');
-        $('#drawerStok').text((partData.qtyOnHand || 0) + ' unit');
-        $('#drawerModel').text(partData.frame || '-');
-
-        $('#drawerUnitList').html(`
-            <div style="text-align: center; padding: 2rem 0; color: #64748B;">
-                <i class="fa-solid fa-circle-notch fa-spin" style="color: #3B82F6; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                <div>Mengambil populasi unit customer...</div>
-            </div>
-        `);
-
-        $('#drawerBackdrop').addClass('show');
-        $('#sideDrawer').addClass('show');
-
-        // Fetch Populasi Unit Data via AJAX
-        $.ajax({
-            url: '<?php echo $data["populasi_unit_url"]; ?>',
-            type: 'POST',
-            data: {
-                unitId: partData.unitId
-            },
-            dataType: 'json',
-            success: function(res) {
-                const listData = Array.isArray(res) ? res : (res && res.data ? res.data : []);
-                
-                if (listData.length > 0) {
-                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (${listData.length})`);
-                    
-                    let html = '';
-                    
-                    listData.forEach(item => {
-                        const custName = item.CustomerName;
-                        const custCode = item.CustomerCode;
-                        
-                        const serialNum = item.SerialNumber && item.SerialNumber.trim().length > 0 ? `Serial ${item.SerialNumber}` : "-";
-                        const rawHours = parseFloat(item.HoursMeter);
-                        const hours = (!isNaN(rawHours) && rawHours > 0) ? Math.round(rawHours) : 0;
-                        const serialInfo = `${serialNum} • ${hours.toLocaleString('id-ID')} jam`;
-
-                        const hm = (item.BranchCD ? item.BranchCD.trim() : '-');
-                        
-                        html += `
-                            <div class="unit-card-item">
-                                <div class="unit-card-info">
-                                    <div class="unit-card-customer">
-                                        ${custName}
-                                        <span class="unit-card-customer-code">${custCode}</span>
-                                    </div>
-                                    <div class="unit-card-serial">${serialInfo}</div>
-                                </div>
-                                <div class="unit-card-hm">${hm}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    $('#drawerUnitList').html(html);
-                } else {
-                    $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
-                    $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Tidak ada unit customer yang terdaftar untuk unit ini.</div>');
-                }
-            },
-            error: function() {
-                $('#drawerUnitList').html('<div style="color: #EF4444; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Gagal memuat data populasi unit.</div>');
-            }
-        });
-    };
-
-    const closeDrawer = () => {
-        $('#drawerBackdrop').removeClass('show');
-        $('#sideDrawer').removeClass('show');
-    };
-
-    $().ready(function () {
+    $(document).ready(function () {
         generate_katalog();
-
-        // Event listener for Action Eye Button
-        $(document).on('click', '.btn-view-populasi', function() {
-            const rawData = $(this).attr('data-row');
-            if (rawData) {
-                const partData = JSON.parse(decodeURIComponent(rawData));
-                openDrawer(partData);
-            }
-        });
 
         // Copy button event
         $(document).on('click', '.btn-copy-info', function() {
@@ -270,11 +158,6 @@
                 navigator.clipboard.writeText(code);
                 alert('Part Code ' + code + ' disalin!');
             }
-        });
-
-        // Close drawer handlers
-        $('#btnCloseDrawer, #drawerBackdrop').on('click', function() {
-            closeDrawer();
         });
     });
 </script>
