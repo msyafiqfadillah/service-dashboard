@@ -21,7 +21,7 @@
     </p>
 
     <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-        <a href="<?= site_url('katalog_part_list') ?>" class="btn-export" style="text-decoration: none !important;">
+        <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="btn-export" style="text-decoration: none !important;">
             <i class="fa-solid fa-cube"></i> Buka Katalog Parts
         </a>
         <a href="<?= site_url('dashboard') ?>" class="btn-reset" style="text-decoration: none !important;">
