@@ -11,26 +11,16 @@ class Unit_model extends CI_Model {
     }
 
     private function _query_populasi_unit($unitId) {
-        // $base_sql = "
-        //     select MasterUnitID, a.CustomerID, 
-        //         b.CustomerName, BranchID, a.InventoryClassID, 
-        //         c.InventoryClassCode, c.InventoryClassName, 
-        //         InventoryID, InventoryName, SerialNumber
-        //     from FMMService.dbo.MasterUnit a
-        //     left join FMMService.dbo.Customer b on a.CustomerID = b.CustomerID
-        //     left join FMMService.dbo.InventoryClass c on a.InventoryClassID = c.InventoryClassID
-        //     where RowStatus = 1 and IsActive = 1 and InventoryID = '$unitId'
-        // ";
-
         $base_sql = "
             select distinct a.CustomerID, 
-                b.CustomerName, BranchID, a.InventoryClassID, 
+                b.CustomerName, br.BranchCD, a.InventoryClassID, 
                 c.InventoryClassCode, c.InventoryClassName, 
-                InventoryID, InventoryName
-            from FMMService.dbo.MasterUnit a
-            left join FMMService.dbo.Customer b on a.CustomerID = b.CustomerID
-            left join FMMService.dbo.InventoryClass c on a.InventoryClassID = c.InventoryClassID
-            where RowStatus = 1 and IsActive = 1 and InventoryID = '$unitId'
+                InventoryID, InventoryName, SerialNumber
+            from FMMService.dbo.MasterUnit as a
+            left join FMMService.dbo.Customer as b on a.CustomerID = b.CustomerID
+            left join FMMService.dbo.InventoryClass as c on a.InventoryClassID = c.InventoryClassID
+            inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
+            where RowStatus = 1 and IsActive = 1 and br.CompanyId = 2 and InventoryID = '$unitId'
         ";
 
         return $base_sql;
