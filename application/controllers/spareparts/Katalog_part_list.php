@@ -29,9 +29,9 @@
         }
 
         public function get_populasi_unit() {
-            $unitId = $this->input->post('unitId');
+            $frameId = $this->input->post('frameId');
 
-            $result = $this->Inventory_model->get_populasi_unit($unitId);
+            $result = $this->Inventory_model->get_populasi_unit($frameId);
 
             echo json_encode($result);
         }

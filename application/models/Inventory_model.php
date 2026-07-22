@@ -13,7 +13,7 @@ class Inventory_model extends CI_Model {
     private function _query_part_list() {
         $base_sql = "
             select distinct fpf.partInventoryCd as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
-                cast(fpf.assemblySection as varchar(max)) as assemblySection, 
+                cast(fpf.assemblySection as varchar(max)) as assemblySection, ff.id as frameId,
                 cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
                 x.qtyOnHand
             from fmPartFrame as fpf
@@ -41,22 +41,28 @@ class Inventory_model extends CI_Model {
         $base_sql = $this->_query_part_list();
         $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame');
         $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application');
-        $default_sort = "ORDER BY partCd ASC";
+        $default_sort = "order by partCd ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 
-    private function _query_populasi_unit($unitId) {
+    private function _query_populasi_unit($frameId) {
         $base_sql = "
             select a.MasterUnitID, a.CustomerID, b.CustomerName, b.CustomerCode, 
                 BranchCD, a.InventoryClassID, c.InventoryClassCode, c.InventoryClassName, 
-                InventoryID, InventoryName, SerialNumber, d.HoursMeter
+                a.InventoryID, ii.InventoryCD, a.InventoryName, a.SerialNumber, d.HoursMeter
             from FMMService.dbo.MasterUnit a
             inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
+            inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID
             left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
             left join FMMService.dbo.InventoryClass c ON a.InventoryClassID = c.InventoryClassID
             left join FMMService.dbo.MasterUnitHM d ON a.MasterUnitID = d.MasterUnitID
-            where RowStatus = 1 AND IsActive = 1 and br.CompanyID = 2 and InventoryID = '$unitId'
+            where RowStatus = 1 and IsActive = 1 and br.CompanyID = 2 and a.InventoryID in (
+                select fif.inventoryId
+                from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
+                inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+                where ff.id = $frameId
+            )
         ";
 
         return $base_sql;
@@ -72,7 +78,7 @@ class Inventory_model extends CI_Model {
     private function _query_warehouse_stock() {
         $base_sql = "
             -- unit
-            select distinct ii.InventoryID, z.InventoryName, ff.frame, z.qtyOnHand
+            select distinct ii.InventoryID, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
             from InventoryItem as ii
             left join fmInventoryFrame as fif on ii.InventoryID = fif.inventoryId
             left join fmFrame as ff on fif.frameId = ff.id
@@ -89,7 +95,7 @@ class Inventory_model extends CI_Model {
             ) as z on fif.InventoryID = z.InventoryID
             union
             -- part
-            select distinct ii.InventoryID, z.InventoryName, ff.frame, z.qtyOnHand
+            select distinct ii.InventoryID, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
             from InventoryItem as ii
             left join fmPartFrame as fpf on ii.InventoryID = fpf.partInventoryId
             left join fmFrame as ff on fpf.frameId = ff.id
@@ -111,7 +117,7 @@ class Inventory_model extends CI_Model {
 
     public function get_warehouse_stock() {
         $base_sql = "
-            select InventoryID, InventoryName, frame, qtyOnHand
+            select InventoryID, InventoryName, frame, frameId, qtyOnHand
             from (" . $this->_query_warehouse_stock() . ") as z
         ";
 
