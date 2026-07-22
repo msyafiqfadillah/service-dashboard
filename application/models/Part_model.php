@@ -11,16 +11,20 @@ class Part_model extends CI_Model {
 
     private function _query_part_list() {
         $base_sql = "
-            select partId, partCode, part, unitId, unitCode, frame, application, qtyOnHand
+            select partCd, partDesc, assemblySection, frame, application, qtyOnHand
+                --, unitCd, unitDescr
             from (
-                select fpf.partInventoryId as partId, fpf.partInventoryCd as partCode, 
-                    cast(fpf.descr as varchar(max)) AS part,
-                    fif.inventoryId as unitId, fif.inventoryCd as unitCode, 
-                    ff.frame, cast(fpf.application as varchar(max)) as application, 
-                    sum(x.qtyOnHand) as qtyOnHand
-                from fmFrame as ff 
-                inner join fmInventoryFrame as fif on ff.id = fif.frameId
-                inner join fmPartFrame as fpf on ff.id = fpf.frameId
+                select fpf.partInventoryCd as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
+                    cast(fpf.assemblySection as varchar(max)) as assemblySection, 
+                    cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
+                    x.qtyOnHand
+                    --, sum(x.QtyOnHand) as qtyOnHand
+                    --, fif.inventoryCd as unitCd, cast(fif.descr as varchar(max)) as unitDescr
+                from fmPartFrame as fpf
+                inner join InventoryItem as ii on fpf.partInventoryId = ii.InventoryID
+                left join fmFrame as ff on fpf.frameId = ff.id
+                -- di left join karena ada unit yang belum masuk
+                left join fmInventoryFrame as fif on ff.id = fif.frameId
                 inner join (
                     select id, CompanyID, BranchID, BranchCD, InventoryID, InventoryCD, InventoryName, QtyOnHand, ItemClass
                     from db_fmm.dbo.tb_InventoryBalance
@@ -31,8 +35,9 @@ class Part_model extends CI_Model {
                             from db_fmm.dbo.tb_InventoryBalance
                     ) 
                 ) as x on fpf.partInventoryId = x.InventoryID
-                group by fpf.partInventoryId, fpf.partInventoryCd, cast(fpf.descr as varchar(max)),
-                    fif.inventoryId, fif.inventoryCd, ff.frame, cast(fpf.application as varchar(max))
+                group by fpf.partInventoryCd, cast(fpf.descr as varchar(max)), cast(fpf.assemblySection as varchar(max)),
+                    cast(ff.frame as varchar(max)), cast(fpf.application as varchar(max)), x.qtyOnHand
+                    -- , fif.inventoryCd, cast(fif.descr as varchar(max))
             ) as z
         ";
 
@@ -55,9 +60,10 @@ class Part_model extends CI_Model {
         if (!empty($search_value)) {
             $search_like = $this->db->escape('%' . $search_value . '%');
             $where_sql .= " AND (
-                partCode LIKE {$search_like} OR 
-                part LIKE {$search_like} OR 
-                unitCode LIKE {$search_like} OR 
+                partCd LIKE {$search_like} OR 
+                partDesc LIKE {$search_like} OR 
+                [assemblySection] LIKE {$search_like} OR 
+                [application] LIKE {$search_like} OR 
                 frame LIKE {$search_like}
             )";
         }
@@ -66,8 +72,8 @@ class Part_model extends CI_Model {
 
         $recordsFiltered = $this->db->query($count_base_sql . $where_sql)->row()->total;
 
-        $column_order = array('partCode', 'part', 'inventoryCd', 'frame', 'application');
-        $order_sql = " ORDER BY partCode ASC"; // default
+        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application');
+        $order_sql = " ORDER BY partCd ASC"; // default
         
         if (isset($requestData['order'])) {
             $col_idx = (int)$requestData['order']['0']['column'];
