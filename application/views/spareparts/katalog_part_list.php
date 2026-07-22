@@ -1,5 +1,5 @@
 <!-- FILTER CARD -->
-<div class="filter-card">
+<!-- <div class="filter-card">
     <div class="filter-title">
         <i class="fa-solid fa-sliders"></i>
         <span>Filter</span>
@@ -27,7 +27,7 @@
     <button class="btn-reset" id="btnResetFilter">
         <i class="fa-solid fa-rotate-right"></i> Reset Filter
     </button>
-</div>
+</div> -->
 
 <!-- DATA TABLE CARD -->
 <div class="table-card">
@@ -38,9 +38,9 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="customSearchInput" placeholder="Search sparepart...">
             </div>
-            <button class="btn-export">
+            <!-- <button class="btn-export">
                 <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i>
-            </button>
+            </button> -->
         </div>
     </div>
 

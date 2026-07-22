@@ -7,9 +7,9 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="customSearchInput" placeholder="Cari inventory ID atau deskripsi...">
             </div>
-            <button class="btn-export">
+            <!-- <button class="btn-export">
                 <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i>
-            </button>
+            </button> -->
         </div>
     </div>
 
