@@ -23,7 +23,7 @@
         </ul>
     </div>
 
-    <div class="menu-group">
+    <!-- <div class="menu-group">
         <div class="menu-title">UNIT</div>
         <ul class="menu-list">
             <li>
@@ -45,7 +45,7 @@
                 </a>
             </li>
         </ul>
-    </div>
+    </div> -->
 
     <div class="menu-group">
         <div class="menu-title">SPAREPART</div>
