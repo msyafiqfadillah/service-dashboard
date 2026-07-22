@@ -23,11 +23,6 @@ class Dashboard extends CI_Controller {
         $this->_load_maintenance('Riwayat Servis', 'riwayat');
     }
 
-    public function stok()
-    {
-        $this->_load_maintenance('Stok Gudang', 'stok');
-    }
-
     public function penjualan()
     {
         $this->_load_maintenance('Penjualan Sparepart', 'penjualan');
