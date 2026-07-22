@@ -49,7 +49,7 @@
             <tr>
                 <th>Part No</th>
                 <th>Description</th>
-                <th>Model</th>
+                <th>Frame</th>
                 <th>Assembly</th>
                 <th>Application</th>
                 <th>Stock</th>
@@ -126,10 +126,10 @@
             pageLength: 10,
             dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
             columns: [
-                { data: "partCode" },
-                { data: "part" },
-                { data: "unitCode" },
+                { data: "partCd" },
+                { data: "partDesc" },
                 { data: "frame" },
+                { data: "assemblySection" },
                 { data: "application" },
                 { 
                     data: "qtyOnHand", 
@@ -178,10 +178,10 @@
 
     // Open & Close Side Drawer Logic
     const openDrawer = (partData) => {
-        $('#drawerPartCode').text(partData.partCode || '-');
-        $('#drawerPartDesc').text(partData.part || '-');
+        $('#drawerPartCode').text(partData.partCd || '-');
+        $('#drawerPartDesc').text(partData.partDesc || '-');
         $('#drawerStok').text((partData.qtyOnHand || 0) + ' unit');
-        $('#drawerModel').text(partData.unitCode || '-');
+        $('#drawerModel').text(partData.frame || '-');
 
         $('#drawerUnitList').html(`
             <div style="text-align: center; padding: 2rem 0; color: #64748B;">
@@ -211,8 +211,8 @@
                     
                     listData.forEach(item => {
                         const custName = item.CustomerName || 'CUSTOMER SWASTA';
-                        const serial = item.SerialNumber ? `Serial ${item.SerialNumber}` : (item.InventoryName ? item.InventoryName : `Serial ${partData.unitCode || ''}`);
-                        const hm = item.HourMeter ? (item.HourMeter + ' jam') : (item.BranchID ? `Branch ${item.BranchID}` : '-');
+                        const serial = item.SerialNumber.length > 0 ? `Serial ${item.SerialNumber}` : "-";
+                        const hm = (item.BranchCD ? item.BranchCD : '-');
                         
                         html += `
                             <div class="unit-card-item">
