@@ -92,8 +92,15 @@
                     data: null,
                     className: "text-center",
                     orderable: false,
-                    render: function() {
-                        return `<span style="color: var(--text-secondary); opacity: 0.5;">-</span>`;
+                    render: function(data, type, row) {
+                        const rowDataAttr = encodeURIComponent(JSON.stringify(row));
+                        return `
+                            <div class="action-btns" style="justify-content: center;">
+                                <button class="btn-action-icon btn-view-populasi" data-row="${rowDataAttr}" title="Lihat Populasi Unit Customer">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        `;
                     }
                 }
             ],
@@ -116,3 +123,5 @@
         generate_stok_gudang();
     });
 </script>
+
+<?php $this->load->view('spareparts/component_side_drawer'); ?>

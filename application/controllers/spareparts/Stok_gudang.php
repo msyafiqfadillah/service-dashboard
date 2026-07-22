@@ -16,7 +16,8 @@
                 "active_menu" => "spareparts/stok_gudang",
                 "content" => "spareparts/stok_gudang",
                 "data" => array(
-                    "stok_gudang_url" => site_url('spareparts/stok_gudang/get_stok_gudang')
+                    "stok_gudang_url" => site_url('spareparts/stok_gudang/get_stok_gudang'),
+                    "populasi_unit_url" => site_url('spareparts/katalog_part_list/get_populasi_unit')
                 )
             ));
         }
