@@ -847,7 +847,13 @@ table.dataTable tbody tr:hover td {
 }
 
 .unit-card-serial {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
+    color: #64748B;
+    margin-top: 2px;
+}
+
+.unit-card-running-hours {
+    font-size: 0.68rem;
     color: #64748B;
     margin-top: 2px;
 }
