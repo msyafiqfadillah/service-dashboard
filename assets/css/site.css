@@ -7,21 +7,21 @@
     --bg-card-hover: #F1F5F9;
     --bg-input: #F8FAFC;
     --bg-active: #EFF6FF;
-    
+
     --text-primary: #0F172A;
     --text-secondary: #64748B;
     --text-muted: #94A3B8;
-    
+
     --accent-blue: #2563EB;
     --accent-blue-hover: #1D4ED8;
     --accent-green: #16A34A;
     --accent-yellow: #D97706;
     --accent-purple: #9333EA;
     --accent-red: #DC2626;
-    
+
     --border-color: #E2E8F0;
     --border-light: #CBD5E1;
-    
+
     --sidebar-width: 250px;
     --font-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -63,8 +63,9 @@ body {
 .sidebar::-webkit-scrollbar {
     width: 4px;
 }
+
 .sidebar::-webkit-scrollbar-thumb {
-    background: var(--border-color); 
+    background: var(--border-color);
     border-radius: 4px;
 }
 
@@ -770,6 +771,7 @@ table.dataTable tbody tr:hover td {
 .drawer-body::-webkit-scrollbar {
     width: 5px;
 }
+
 .drawer-body::-webkit-scrollbar-thumb {
     background: #CBD5E1;
     border-radius: 4px;
@@ -827,6 +829,21 @@ table.dataTable tbody tr:hover td {
     font-size: 0.88rem;
     font-weight: 700;
     color: #0F172A;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.unit-card-customer-code {
+    display: inline-block;
+    font-size: 0.68rem;
+    color: #64748B;
+    background-color: #E2E8F0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-left: 6px;
+    vertical-align: middle;
 }
 
 .unit-card-serial {

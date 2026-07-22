@@ -210,20 +210,30 @@
                     let html = '';
                     
                     listData.forEach(item => {
-                        const custName = item.CustomerName || 'CUSTOMER SWASTA';
-                        const serial = item.SerialNumber.length > 0 ? `Serial ${item.SerialNumber}` : "-";
-                        const hm = (item.BranchCD ? item.BranchCD : '-');
+                        const custName = item.CustomerName;
+                        const custCode = item.CustomerCode;
+                        
+                        const serialNum = item.SerialNumber && item.SerialNumber.trim().length > 0 ? `Serial ${item.SerialNumber}` : "-";
+                        const rawHours = parseFloat(item.HoursMeter);
+                        const hours = (!isNaN(rawHours) && rawHours > 0) ? Math.round(rawHours) : 0;
+                        const serialInfo = `${serialNum} • ${hours.toLocaleString('id-ID')} jam`;
+
+                        const hm = (item.BranchCD ? item.BranchCD.trim() : '-');
                         
                         html += `
                             <div class="unit-card-item">
                                 <div class="unit-card-info">
-                                    <div class="unit-card-customer">${custName}</div>
-                                    <div class="unit-card-serial">${serial}</div>
+                                    <div class="unit-card-customer">
+                                        ${custName}
+                                        <span class="unit-card-customer-code">${custCode}</span>
+                                    </div>
+                                    <div class="unit-card-serial">${serialInfo}</div>
                                 </div>
                                 <div class="unit-card-hm">${hm}</div>
                             </div>
                         `;
                     });
+                    
                     $('#drawerUnitList').html(html);
                 } else {
                     $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
