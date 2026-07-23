@@ -15,7 +15,7 @@ class Inventory_model extends CI_Model {
             select distinct fpf.partInventoryCd as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
                 cast(fpf.assemblySection as varchar(max)) as assemblySection, ff.id as frameId,
                 cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
-                x.qtyOnHand
+                x.qtyOnHand, ii.baseUnit
             from fmPartFrame as fpf
             inner join InventoryItem as ii on fpf.partInventoryId = ii.InventoryID and ii.CompanyID = 2
             left join fmFrame as ff on fpf.frameId = ff.id

@@ -50,10 +50,11 @@
         const qtyOnHand = partData.qtyOnHand || 0;
         const frame = partData.frame || '-';
         const frameId = partData.frameId;
+        const baseUnit = partData.baseUnit.toLowerCase();
 
         $('#drawerPartCode').text(partCd);
         $('#drawerPartDesc').text(partDesc);
-        $('#drawerStok').text(qtyOnHand + ' unit');
+        $('#drawerStok').text(qtyOnHand + ` ${baseUnit}`);
         $('#drawerModel').text(frame);
 
         $('#drawerUnitList').html(`
