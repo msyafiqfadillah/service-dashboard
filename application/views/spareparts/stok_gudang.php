@@ -66,7 +66,7 @@
             dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
             columns: [
                 { 
-                    data: "InventoryID",
+                    data: "InventoryCD",
                     render: function(data) {
                         return `<strong>${data}</strong>`;
                     }

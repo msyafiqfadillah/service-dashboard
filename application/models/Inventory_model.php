@@ -78,7 +78,7 @@ class Inventory_model extends CI_Model {
     private function _query_warehouse_stock() {
         $base_sql = "
             -- unit
-            select distinct ii.InventoryID, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
+            select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
             from InventoryItem as ii
             left join fmInventoryFrame as fif on ii.InventoryID = fif.inventoryId
             left join fmFrame as ff on fif.frameId = ff.id
@@ -95,7 +95,7 @@ class Inventory_model extends CI_Model {
             ) as z on fif.InventoryID = z.InventoryID
             union
             -- part
-            select distinct ii.InventoryID, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
+            select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
             from InventoryItem as ii
             left join fmPartFrame as fpf on ii.InventoryID = fpf.partInventoryId
             left join fmFrame as ff on fpf.frameId = ff.id
@@ -117,13 +117,13 @@ class Inventory_model extends CI_Model {
 
     public function get_warehouse_stock() {
         $base_sql = "
-            select InventoryID, InventoryName, frame, frameId, qtyOnHand
+            select InventoryCD, InventoryName, frame, frameId, qtyOnHand
             from (" . $this->_query_warehouse_stock() . ") as z
         ";
 
-        $searchable_columns = array('InventoryID', 'InventoryName', 'frame');
-        $column_order = array('InventoryID', 'InventoryName', 'frame', 'qtyOnHand');
-        $default_sort = "ORDER BY InventoryID ASC";
+        $searchable_columns = array('InventoryCD', 'InventoryName', 'frame');
+        $column_order = array('InventoryCD', 'InventoryName', 'frame', 'qtyOnHand');
+        $default_sort = "ORDER BY InventoryCD ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
