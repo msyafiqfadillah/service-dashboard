@@ -17,7 +17,7 @@ class Inventory_model extends CI_Model {
                 cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
                 x.qtyOnHand
             from fmPartFrame as fpf
-            inner join InventoryItem as ii on fpf.partInventoryId = ii.InventoryID
+            inner join InventoryItem as ii on fpf.partInventoryId = ii.InventoryID and ii.CompanyID = 2
             left join fmFrame as ff on fpf.frameId = ff.id
             -- di left join karena ada unit yang belum masuk
             left join fmInventoryFrame as fif on ff.id = fif.frameId
@@ -53,7 +53,8 @@ class Inventory_model extends CI_Model {
                 a.InventoryID, ii.InventoryCD, a.InventoryName, a.SerialNumber, d.HoursMeter
             from FMMService.dbo.MasterUnit a
             inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
-            inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID
+            inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
+                and br.CompanyID = ii.CompanyID
             left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
             left join FMMService.dbo.InventoryClass c ON a.InventoryClassID = c.InventoryClassID
             left join FMMService.dbo.MasterUnitHM d ON a.MasterUnitID = d.MasterUnitID
@@ -68,8 +69,8 @@ class Inventory_model extends CI_Model {
         return $base_sql;
     }
 
-    public function get_populasi_unit($unitId) {
-        $query = $this->_query_populasi_unit($unitId);
+    public function get_populasi_unit($frameId) {
+        $query = $this->_query_populasi_unit($frameId);
         $result = $this->db->query($query)->result();
 
         return $result;
@@ -93,6 +94,7 @@ class Inventory_model extends CI_Model {
                     )
                 group by InventoryID, InventoryCD, InventoryName
             ) as z on fif.InventoryID = z.InventoryID
+            where ii.CompanyID = 2
             union
             -- part
             select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
@@ -110,6 +112,7 @@ class Inventory_model extends CI_Model {
                     )
                 group by InventoryID, InventoryCD, InventoryName
             ) as z on fpf.partInventoryID = z.InventoryID
+            where ii.CompanyID = 2
         ";
 
         return $base_sql;

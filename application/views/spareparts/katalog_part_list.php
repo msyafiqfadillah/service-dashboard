@@ -1,34 +1,3 @@
-<!-- FILTER CARD -->
-<!-- <div class="filter-card">
-    <div class="filter-title">
-        <i class="fa-solid fa-sliders"></i>
-        <span>Filter</span>
-    </div>
-    <div class="filter-dropdowns">
-        <div class="filter-group">
-            <label>Model</label>
-            <select class="filter-select" id="filterModel">
-                <option value="">Semua model</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Stok</label>
-            <select class="filter-select" id="filterStok">
-                <option value="">Semua stok</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Sumber</label>
-            <select class="filter-select" id="filterSumber">
-                <option value="">Semua sumber</option>
-            </select>
-        </div>
-    </div>
-    <button class="btn-reset" id="btnResetFilter">
-        <i class="fa-solid fa-rotate-right"></i> Reset Filter
-    </button>
-</div> -->
-
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
@@ -151,7 +120,6 @@
     $(document).ready(function () {
         generate_katalog();
 
-        // Copy button event
         $(document).on('click', '.btn-copy-info', function() {
             const code = $(this).attr('data-code');
             if (code) {
