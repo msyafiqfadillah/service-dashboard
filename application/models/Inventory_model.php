@@ -84,7 +84,7 @@ class Inventory_model extends CI_Model {
             from (
                 -- unit
                 select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
-                    ii.ItemClassId, ii.baseUnit, ff.frame, ff.id as frameId, 
+                    ii.ItemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
                     z.qtyOnHand, z.aging, ii.companyID
                 from InventoryItem as ii
                 left join fmInventoryFrame as fif on ii.inventoryID = fif.inventoryID
@@ -105,7 +105,7 @@ class Inventory_model extends CI_Model {
                 union
                 -- part
                 select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
-                    ii.itemClassId, ii.baseUnit, ff.frame, ff.id as frameId, 
+                    ii.itemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
                     z.qtyOnHand, z.aging, ii.companyID
                 from InventoryItem as ii
                 left join fmPartFrame as fpf on ii.inventoryID = fpf.partInventoryID
