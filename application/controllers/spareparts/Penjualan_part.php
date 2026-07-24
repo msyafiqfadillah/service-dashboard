@@ -33,5 +33,13 @@
 
             echo json_encode($result);
         }
+
+        public function get_top_customers() {
+            $inventoryCd = trim($this->input->get("inventoryCd"));
+
+            $result = $this->Inventory_model->get_top_customers($inventoryCd);
+
+            echo json_encode($result);
+        }
     }
 ?>

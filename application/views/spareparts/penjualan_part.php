@@ -69,6 +69,7 @@
                 <th style="text-align: right; width: 110px;">Total Terjual</th>
                 <th style="text-align: center; width: 110px;">Stok Saat Ini</th>
                 <th style="text-align: center; width: 180px;">Rasio Stok/Rata² Tahunan</th>
+                <th style="text-align: center; width: 120px;">List Customer</th>
             </tr>
         </thead>
         <tbody>
@@ -85,7 +86,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
             </td>
@@ -110,7 +111,7 @@
             bAutoWidth: false,
             pageLength: 10,
             dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
-            order: [[5, 'desc']], // Default sort by Total Sold Descending
+            order: [[5, 'desc']], // Default sort by Total Sold Descending            
             columns: [
                 { 
                     data: "inventoryCD",
@@ -172,6 +173,21 @@
 
                         return `<span class="badge-ratio ${colorClass}">${ratioText}</span>`;
                     }
+                },
+                { 
+                    data: null,
+                    className: "text-center",
+                    orderable: false,
+                    render: function(data, type, row) {
+                        const rowDataAttr = encodeURIComponent(JSON.stringify(row));
+                        return `
+                            <div class="action-btns" style="justify-content: center;">
+                                <button class="btn-action-icon btn-view-customer" data-row="${rowDataAttr}" title="Lihat Rincian Customer">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
                 }
             ],
             language: {
@@ -191,5 +207,16 @@
 
     $(document).ready(function() {
         generate_sales();
+
+        // Click handler to open top customer drawer
+        $(document).on('click', '.btn-view-customer', function() {
+            const rawData = $(this).attr('data-row');
+            if (rawData) {
+                const rowData = JSON.parse(decodeURIComponent(rawData));
+                openCustDrawer(rowData.inventoryCD, rowData.inventoryName, rowData.totalSold, rowData.qtyOnHand);
+            }
+        });
     });
 </script>
+
+<?php $this->load->view('spareparts/component_customer_drawer'); ?>

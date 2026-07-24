@@ -194,4 +194,23 @@ class Inventory_model extends CI_Model {
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
+
+    private function _query_top_customers($inventoryCd) {
+        $base_sql = "
+            select customerName, branchCD, sum(qty) as qty, max(tranDate) as tranDate 
+            from db_fmm.dbo.tb_stagging as tbs
+            where rtrim(ltrim(tbs.inventoryCD)) = '$inventoryCd'
+            group by customerName, branchCD
+            order by sum(qty) desc
+        ";
+
+        return $base_sql;
+    }
+
+    public function get_top_customers($inventoryCd) {
+        $base_sql = $this->_query_top_customers($inventoryCd);
+        $result = $this->db->query($base_sql)->result_array();
+
+        return $result;
+    }
 }
