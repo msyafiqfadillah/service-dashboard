@@ -18,8 +18,11 @@
             <tr>
                 <th>Inventory ID</th>
                 <th>Deskripsi</th>
+                <th>Tipe Item</th>
+                <th>Dipakai di Frame</th>
+                <th>Aging</th>
                 <th style="text-align: center; width: 120px;">Qty On Hand</th>
-                <th>Dipakai di Model</th>
+                <th>Pricelist</th>
                 <th style="text-align: center; width: 140px;">Potensi Jual</th>
             </tr>
         </thead>
@@ -39,7 +42,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="5" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
             </td>
@@ -66,13 +69,21 @@
             dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
             columns: [
                 { 
-                    data: "InventoryCD",
+                    data: "inventoryCD",
                     render: function(data) {
                         return `<strong>${data}</strong>`;
                     }
                 },
-                { data: "InventoryName" },
+                { data: "inventoryName" },
+                { data: "itemType" },
                 { 
+                    data: "frame",
+                    render: function(data, type, row) {
+                        return data ? data : `<span style="color: var(--text-secondary); opacity: 0.6;">Tidak terpetakan ke fleet RM55-75/RM30-45</span>`;
+                    }
+                },
+                { data: "aging" },
+                {
                     data: "qtyOnHand",
                     className: "text-center",
                     render: function(data, type, row, meta) {
@@ -84,12 +95,7 @@
                         return `<span class="badge-stock ${badgeClass}">${data}</span>`;
                     }
                 },
-                { 
-                    data: "frame",
-                    render: function(data, type, row) {
-                        return data ? data : `<span style="color: var(--text-secondary); opacity: 0.6;">Tidak terpetakan ke fleet RM55-75/RM30-45</span>`;
-                    }
-                },
+                { data: "salesPrice" },
                 { 
                     data: null,
                     className: "text-center",

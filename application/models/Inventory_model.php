@@ -78,56 +78,125 @@ class Inventory_model extends CI_Model {
 
     private function _query_warehouse_stock() {
         $base_sql = "
-            -- unit
-            select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
-            from InventoryItem as ii
-            left join fmInventoryFrame as fif on ii.InventoryID = fif.inventoryId
-            left join fmFrame as ff on fif.frameId = ff.id
-            inner join (
-                select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
-                from db_fmm.dbo.tb_InventoryBalance
-                where CompanyID = 2
-                    and QtyOnHand > 0
-                    and FinPeriodID = (
-                        select max(FinPeriodID)
-                        from db_fmm.dbo.tb_InventoryBalance
-                    )
-                group by InventoryID, InventoryCD, InventoryName
-            ) as z on fif.InventoryID = z.InventoryID
-            where ii.CompanyID = 2
-            union
-            -- part
-            select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
-            from InventoryItem as ii
-            left join fmPartFrame as fpf on ii.InventoryID = fpf.partInventoryId
-            left join fmFrame as ff on fpf.frameId = ff.id
-            inner join (
-                select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
-                from db_fmm.dbo.tb_InventoryBalance
-                where CompanyID = 2
-                    and QtyOnHand > 0
-                    and FinPeriodID = (
-                        select max(FinPeriodID)
-                        from db_fmm.dbo.tb_InventoryBalance
-                    )
-                group by InventoryID, InventoryCD, InventoryName
-            ) as z on fpf.partInventoryID = z.InventoryID
-            where ii.CompanyID = 2
+            select v.inventoryCD, v.inventoryName, v.baseUnit,
+                v.frame, v.frameId, right(iic.descr, 4) as itemType, 
+                v.qtyOnHand, v.aging, format(max(c.SalesPrice), 'N0') as salesPrice
+            from (
+                -- unit
+                select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
+                    ii.ItemClassId, ii.baseUnit, ff.frame, ff.id as frameId, 
+                    z.qtyOnHand, z.aging, ii.companyID
+                from InventoryItem as ii
+                left join fmInventoryFrame as fif on ii.inventoryID = fif.inventoryID
+                left join fmFrame as ff on fif.frameId = ff.id
+                inner join (
+                    select inventoryID, inventoryCD, InventoryName, 
+                        sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
+                    from db_fmm.dbo.tb_InventoryBalance
+                    where CompanyID = 2
+                        and QtyOnHand > 0
+                        and FinPeriodID = (
+                            select max(FinPeriodID)
+                            from db_fmm.dbo.tb_InventoryBalance
+                        )
+                    group by inventoryID, inventoryCD, InventoryName, LastReceiptDate
+                ) as z on fif.inventoryID = z.inventoryID
+                where ii.CompanyID = 2
+                union
+                -- part
+                select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
+                    ii.itemClassId, ii.baseUnit, ff.frame, ff.id as frameId, 
+                    z.qtyOnHand, z.aging, ii.companyID
+                from InventoryItem as ii
+                left join fmPartFrame as fpf on ii.inventoryID = fpf.partInventoryID
+                left join fmFrame as ff on fpf.frameId = ff.id
+                inner join (
+                    select inventoryID, inventoryCD, InventoryName, 
+                        sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
+                    from db_fmm.dbo.tb_InventoryBalance
+                    where CompanyID = 2
+                        and QtyOnHand > 0
+                        and FinPeriodID = (
+                            select max(FinPeriodID)
+                            from db_fmm.dbo.tb_InventoryBalance
+                        )
+                    group by inventoryID, inventoryCD, InventoryName, LastReceiptDate
+                ) as z on fpf.partInventoryID = z.inventoryID
+                where ii.CompanyID = 2
+            ) as v
+            inner join ARSalesPrice as c on v.inventoryID = c.inventoryID 
+                and v.CompanyID = c.CompanyID
+            inner join INItemClass as iic on v.itemClassId = iic.itemClassId 
+                and v.CompanyID = iic.CompanyID
+            group by v.inventoryCD, v.inventoryName, v.baseUnit,
+                v.frame, v.frameId, v.qtyOnHand, iic.descr, v.aging
         ";
 
         return $base_sql;
     }
 
     public function get_warehouse_stock() {
-        $base_sql = "
-            select InventoryCD, InventoryName, frame, frameId, qtyOnHand
-            from (" . $this->_query_warehouse_stock() . ") as z
-        ";
+        $base_sql = $this->_query_warehouse_stock();
 
-        $searchable_columns = array('InventoryCD', 'InventoryName', 'frame');
-        $column_order = array('InventoryCD', 'InventoryName', 'frame', 'qtyOnHand');
-        $default_sort = "ORDER BY InventoryCD ASC";
+        $searchable_columns = array('inventoryCD', 'inventoryName', 'frame', 'itemType');
+        $column_order = array('inventoryCD', 'inventoryName', 'frame', 'qtyOnHand');
+        $default_sort = "ORDER BY inventoryCD ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
+
+    // private function _query_warehouse_stock() {
+    //     $base_sql = "
+    //         -- unit
+    //         select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
+    //         from InventoryItem as ii
+    //         left join fmInventoryFrame as fif on ii.InventoryID = fif.inventoryId
+    //         left join fmFrame as ff on fif.frameId = ff.id
+    //         inner join (
+    //             select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
+    //             from db_fmm.dbo.tb_InventoryBalance
+    //             where CompanyID = 2
+    //                 and QtyOnHand > 0
+    //                 and FinPeriodID = (
+    //                     select max(FinPeriodID)
+    //                     from db_fmm.dbo.tb_InventoryBalance
+    //                 )
+    //             group by InventoryID, InventoryCD, InventoryName
+    //         ) as z on fif.InventoryID = z.InventoryID
+    //         where ii.CompanyID = 2
+    //         union
+    //         -- part
+    //         select distinct ii.InventoryCD, z.InventoryName, ff.frame, ff.id as frameId, z.qtyOnHand
+    //         from InventoryItem as ii
+    //         left join fmPartFrame as fpf on ii.InventoryID = fpf.partInventoryId
+    //         left join fmFrame as ff on fpf.frameId = ff.id
+    //         inner join (
+    //             select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
+    //             from db_fmm.dbo.tb_InventoryBalance
+    //             where CompanyID = 2
+    //                 and QtyOnHand > 0
+    //                 and FinPeriodID = (
+    //                     select max(FinPeriodID)
+    //                     from db_fmm.dbo.tb_InventoryBalance
+    //                 )
+    //             group by InventoryID, InventoryCD, InventoryName
+    //         ) as z on fpf.partInventoryID = z.InventoryID
+    //         where ii.CompanyID = 2
+    //     ";
+
+    //     return $base_sql;
+    // }
+
+    // public function get_warehouse_stock() {
+    //     $base_sql = "
+    //         select InventoryCD, InventoryName, frame, frameId, qtyOnHand
+    //         from (" . $this->_query_warehouse_stock() . ") as z
+    //     ";
+
+    //     $searchable_columns = array('InventoryCD', 'InventoryName', 'frame');
+    //     $column_order = array('InventoryCD', 'InventoryName', 'frame', 'qtyOnHand');
+    //     $default_sort = "ORDER BY InventoryCD ASC";
+
+    //     return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+    // }
 }

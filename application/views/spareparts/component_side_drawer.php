@@ -45,8 +45,8 @@
 <script>
     // Open & Close Side Drawer Logic
     const openDrawer = (partData) => {       
-        const partCd = partData.partCd || partData.InventoryID || '-';
-        const partDesc = partData.partDesc || partData.InventoryName || '-';
+        const partCd = partData.partCd || partData.inventoryCD || '-';
+        const partDesc = partData.partDesc || partData.inventoryName || '-';
         const qtyOnHand = partData.qtyOnHand || 0;
         const frame = partData.frame || '-';
         const frameId = partData.frameId;
