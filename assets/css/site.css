@@ -864,3 +864,10 @@ table.dataTable tbody tr:hover td {
     color: #2563EB;
     white-space: nowrap;
 }
+
+/* Ensure sorting arrows have enough space and don't overlap with text */
+table.dataTable thead th.sorting,
+table.dataTable thead th.sorting_asc,
+table.dataTable thead th.sorting_desc {
+    padding-right: 2.2rem !important;
+}

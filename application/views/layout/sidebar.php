@@ -63,7 +63,7 @@
                 </a>
             </li>
             <li>
-                <a href="<?= site_url('dashboard/penjualan') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'penjualan') ? 'active' : '' ?>">
+                <a href="<?= site_url('spareparts/penjualan_part') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/penjualan_part') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-cart-shopping"></i></span>
                     Penjualan Sparepart
                 </a>
