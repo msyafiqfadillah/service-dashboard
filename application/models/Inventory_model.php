@@ -149,8 +149,8 @@ class Inventory_model extends CI_Model {
         $base_sql = "
             select rtrim(ltrim(inventoryCD)) as inventoryCD, inventoryName, twoYearAgoSold, oneYearAgoSold, currentSold, 
                 (twoYearAgoSold + oneYearAgoSold + currentSold) as totalSold, qtyOnHand, 
-                (case when (twoYearAgoSold + oneYearAgoSold + currentSold) / 3 > 0 
-                    then (cast(qtyOnHand as float) / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3)) else 0 end) as rasioYear
+                (case when (twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0 > 0 
+                    then (qtyOnHand / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0)) else 0 end) as rasioYear
             from (
                 select distinct tib.inventoryCD, tib.inventoryName, 
                     count((case when year(trandate) = year(getdate()) - 2 then tbs.inventoryCD end)) as twoYearAgoSold,
