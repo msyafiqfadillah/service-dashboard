@@ -12,7 +12,7 @@ class Inventory_model extends CI_Model {
 
     private function _query_part_list() {
         $base_sql = "
-            select distinct fpf.partInventoryCd as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
+            select distinct cast(fpf.partInventoryCd as varchar(max)) as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
                 cast(fpf.assemblySection as varchar(max)) as assemblySection, ff.id as frameId,
                 cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
                 x.qtyOnHand, ii.baseUnit
