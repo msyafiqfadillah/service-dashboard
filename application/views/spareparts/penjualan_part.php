@@ -66,7 +66,7 @@
                 <th style="text-align: right; width: 80px;"><?= $data["two_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["one_year_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["current_year"]; ?></th>
-                <th style="text-align: right; width: 110px;">Total Terjual</th>
+                <th style="text-align: right; width: 110px; cursor: help;" title="Quantity Per item Per invoice">Total Terjual</th>
                 <th style="text-align: center; width: 110px;">Stok Saat Ini</th>
                 <th style="text-align: center; width: 180px;">Rasio Stok/Rata² Tahunan</th>
                 <th style="text-align: center; width: 120px;">List Customer</th>
