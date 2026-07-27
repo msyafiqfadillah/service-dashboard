@@ -2,10 +2,21 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard extends CI_Controller {
+    function __construct() {
+        parent::__construct();
+
+        $this->load->model("Inventory_model");
+    }
 
     public function index()
     {
         $this->_load_maintenance('Dashboard Aftermarket', 'dashboard');
+    }
+
+    public function get_unit_distribution() {
+        $result = $this->Inventory_model->get_unit_distribution();
+
+        echo json_encode($result);
     }
 
     public function populasi()

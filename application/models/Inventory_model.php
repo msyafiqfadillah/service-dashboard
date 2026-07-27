@@ -46,7 +46,13 @@ class Inventory_model extends CI_Model {
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 
-    private function _query_populasi_unit($frameId) {
+    private function _query_populasi_unit($frameId = null) {
+        $inner_where = "";
+        
+        if (isset($frameId)) {
+            $inner_where .= "and ff.id = $frameId";
+        }
+
         $base_sql = "
             select a.MasterUnitID, a.CustomerID, b.CustomerName, b.CustomerCode, 
                 BranchCD, a.InventoryClassID, c.InventoryClassCode, c.InventoryClassName, 
@@ -62,7 +68,7 @@ class Inventory_model extends CI_Model {
                 select fif.inventoryId
                 from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
                 inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
-                where ff.id = $frameId
+                where 1=1 $inner_where
             )
         ";
 
@@ -210,6 +216,20 @@ class Inventory_model extends CI_Model {
     public function get_top_customers($inventoryCd) {
         $base_sql = $this->_query_top_customers($inventoryCd);
         $result = $this->db->query($base_sql)->result_array();
+
+        return $result;
+    }
+
+    public function get_unit_distribution() {
+        $base_sql = $this->_query_populasi_unit();
+        $query = "
+            select ltrim(rtrim(BranchCD)) as BranchCD, count(distinct SerialNumber) as CountSerialNumber, 
+                count(distinct CustomerCode) as CountCustomerCode
+            from ($base_sql) as x
+            group by ltrim(rtrim(BranchCD))
+        ";
+
+        $result = $this->db->query($query)->result_array();
 
         return $result;
     }
