@@ -69,7 +69,7 @@
                 </a>
             </li>
             <li>
-                <a href="<?= site_url('dashboard/crossref') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'crossref') ? 'active' : '' ?>">
+                <a href="<?= site_url('spareparts/cross_reference') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/cross_reference') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-right-left"></i></span>
                     Cross-Reference
                 </a>

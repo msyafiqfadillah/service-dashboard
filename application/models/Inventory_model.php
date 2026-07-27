@@ -233,4 +233,51 @@ class Inventory_model extends CI_Model {
 
         return $result;
     }
+
+    private function _query_customers_by_part() {
+        $base_sql = "
+            select distinct 
+                b.CustomerName, 
+                b.CustomerCode, 
+                br.BranchCD, 
+                cast(ff.frame as varchar(max)) as frame, 
+                a.SerialNumber,
+                cast(fpf.partInventoryCd as varchar(max)) as partInventoryCd,
+                cast(fpf.descr as varchar(max)) as partDesc,
+                isnull(part_stock.qtyOnHand, 0) as qtyOnHand
+            from FMMService.dbo.MasterUnit a
+            inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
+            inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
+                and br.CompanyID = ii.CompanyID
+            inner join AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif on a.InventoryID = fif.InventoryID
+            inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+            inner join AcumaticaProduction_NEW.dbo.fmPartFrame as fpf on ff.id = fpf.frameId
+            left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
+            left join (
+                select InventoryID, sum(QtyOnhand) as qtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                  and FinPeriodID = (
+                      select max(FinPeriodID)
+                      from db_fmm.dbo.tb_InventoryBalance
+                  )
+                group by InventoryID
+            ) as part_stock on fpf.partInventoryId = part_stock.InventoryID
+            where RowStatus = 1 and IsActive = 1 and br.CompanyID = 2 and a.InventoryID in (
+                select fif.inventoryId
+                from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
+                inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+            ) and (cast(fpf.partInventoryCd as varchar(max)) like ? or cast(fpf.descr as varchar(max)) like ?)
+        ";
+
+        return $base_sql;
+    }
+
+    public function get_customers_by_part($part) {
+        $base_sql = $this->_query_customers_by_part();
+        $term = '%' . trim($part) . '%';
+        $result = $this->db->query($base_sql, array($term, $term))->result_array();
+
+        return $result;
+    }
 }
