@@ -3,16 +3,18 @@
         <div class="xr-title">Cross-Reference Part → Model → Customer</div>
         <div class="xr-subtitle">Cari 1 part number, temukan seluruh customer yang berpotensi membutuh part tersebut</div>
     </div>
-
-    <div class="xr-search-card">
-        <div class="xr-search-box">
+    <div class="xr-search-card" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div class="xr-search-box" style="flex: 1; max-width: 420px;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="partSearchInput" placeholder="Ketik part number atau kata kunci deskripsi..." autofocus>
         </div>
+        <div class="stock-toggle-container">
+            <button class="btn-toggle active" data-filter="all">Semua</button>
+            <button class="btn-toggle" data-filter="instock">Ada Stok</button>
+        </div>
     </div>
-
     <div id="resultContainer">
-        <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+        <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
             Ketik minimal 2 karakter untuk mulai mencari.
         </div>
     </div>
@@ -33,8 +35,32 @@
         padding: 1rem 1.25rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
+    .stock-toggle-container {
+        display: inline-flex;
+        background-color: var(--bg-hover, #F8FAFC);
+        border: 1px solid var(--border-color, #E2E8F0);
+        padding: 2px;
+        border-radius: 6px;
+    }
+    .btn-toggle {
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748B);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-toggle.active {
+        background-color: var(--card-bg, #FFFFFF);
+        color: var(--accent-blue, #3B82F6);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
     .xr-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--text-primary, #0F172A);
         margin-bottom: 0.15rem;
@@ -190,6 +216,117 @@
 
 <script>
     let searchTimeout = null;
+    let lastSearchResult = null;
+    let stockFilter = 'all'; // 'all' or 'instock'
+
+    const renderResults = () => {
+        if (!Array.isArray(lastSearchResult) || lastSearchResult.length === 0) {
+            $('#resultContainer').html(`
+                <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+                    Tidak ada part atau customer yang cocok dengan kata kunci tersebut.
+                </div>
+            `);
+            return;
+        }
+
+        // Group by partInventoryCd in JavaScript
+        const grouped = {};
+        lastSearchResult.forEach(item => {
+            const cd = item.partInventoryCd;
+            const qty = parseInt(item.qtyOnHand || 0);
+
+            // Filter by stock if toggled
+            if (stockFilter === 'instock' && qty <= 0) {
+                return;
+            }
+
+            if (!grouped[cd]) {
+                grouped[cd] = {
+                    partInventoryCd: cd,
+                    partDesc: item.partDesc || '-',
+                    qtyOnHand: qty,
+                    frames: new Set(),
+                    customers: []
+                };
+            }
+            if (item.frame) {
+                grouped[cd].frames.add(item.frame.trim());
+            }
+            grouped[cd].customers.push(item);
+        });
+
+        const groupsArray = Object.values(grouped);
+
+        if (groupsArray.length === 0) {
+            $('#resultContainer').html(`
+                <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+                    Tidak ada part berstok yang cocok dengan kata kunci tersebut.
+                </div>
+            `);
+            return;
+        }
+
+        // Generate HTML for each part group
+        let html = '';
+        groupsArray.forEach(group => {
+            const uniqueFrames = Array.from(group.frames);
+            const totalUnits = group.customers.length;
+            
+            // Count unique customer names
+            const uniqueCusts = new Set(group.customers.map(c => c.CustomerName));
+            const totalCusts = uniqueCusts.size;
+
+            // Header part info
+            const stockClass = group.qtyOnHand > 0 ? 'part-stock-pill' : 'part-stock-pill empty';
+            const stockText = group.qtyOnHand > 0 ? `Stok: ${group.qtyOnHand.toLocaleString('id-ID')}` : 'Stok: Kosong';
+
+            let tableRows = '';
+            group.customers.forEach(cust => {
+                tableRows += `
+                    <tr>
+                        <td style="font-weight: 600;">${cust.CustomerName || '-'}</td>
+                        <td style="font-variant-numeric: tabular-nums;">${cust.SerialNumber || '-'}</td>
+                        <td><span class="part-model-tag">${cust.frame || '-'}</span></td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                <div class="part-card">
+                    <div class="part-card-header">
+                        <div class="part-title-group">
+                            <div class="part-title-text">${group.partInventoryCd} — ${group.partDesc}</div>
+                            <div class="part-model-info">
+                                Dipakai di model: ${uniqueFrames.map(f => `<span class="part-model-tag">${f}</span>`).join(' ')}
+                            </div>
+                        </div>
+                        <div class="${stockClass}">${stockText}</div>
+                    </div>
+                    
+                    <div class="part-summary-text">
+                        <strong>${totalUnits} unit</strong> terpasang di <strong>${totalCusts} customer</strong> berpotensi butuh part ini:
+                    </div>
+                    
+                    <div class="part-table-wrapper">
+                        <table class="part-table">
+                            <thead>
+                                <tr>
+                                    <th>CUSTOMER</th>
+                                    <th>SERIAL</th>
+                                    <th>MODEL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+
+        $('#resultContainer').html(html);
+    };
 
     const performSearch = (part) => {
         $('#resultContainer').html(`
@@ -205,94 +342,8 @@
             data: { part: part },
             dataType: 'json',
             success: function(res) {
-                if (!Array.isArray(res) || res.length === 0) {
-                    $('#resultContainer').html(`
-                        <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                            Tidak ada part atau customer yang cocok dengan kata kunci tersebut.
-                        </div>
-                    `);
-                    return;
-                }
-
-                // Group by partInventoryCd in JavaScript
-                const grouped = {};
-                res.forEach(item => {
-                    const cd = item.partInventoryCd;
-                    if (!grouped[cd]) {
-                        grouped[cd] = {
-                            partInventoryCd: cd,
-                            partDesc: item.partDesc || '-',
-                            qtyOnHand: parseInt(item.qtyOnHand || 0),
-                            frames: new Set(),
-                            customers: []
-                        };
-                    }
-                    if (item.frame) {
-                        grouped[cd].frames.add(item.frame.trim());
-                    }
-                    grouped[cd].customers.push(item);
-                });
-
-                // Generate HTML for each part group
-                let html = '';
-                Object.values(grouped).forEach(group => {
-                    const uniqueFrames = Array.from(group.frames);
-                    const totalUnits = group.customers.length;
-                    
-                    // Count unique customer names
-                    const uniqueCusts = new Set(group.customers.map(c => c.CustomerName));
-                    const totalCusts = uniqueCusts.size;
-
-                    // Header part info
-                    const stockClass = group.qtyOnHand > 0 ? 'part-stock-pill' : 'part-stock-pill empty';
-                    const stockText = group.qtyOnHand > 0 ? `Stok: ${group.qtyOnHand.toLocaleString('id-ID')}` : 'Stok: Kosong';
-
-                    let tableRows = '';
-                    group.customers.forEach(cust => {
-                        tableRows += `
-                            <tr>
-                                <td style="font-weight: 600;">${cust.CustomerName || '-'}</td>
-                                <td style="font-variant-numeric: tabular-nums;">${cust.SerialNumber || '-'}</td>
-                                <td><span class="part-model-tag">${cust.frame || '-'}</span></td>
-                            </tr>
-                        `;
-                    });
-
-                    html += `
-                        <div class="part-card">
-                            <div class="part-card-header">
-                                <div class="part-title-group">
-                                    <div class="part-title-text">${group.partInventoryCd} — ${group.partDesc}</div>
-                                    <div class="part-model-info">
-                                        Dipakai di model: ${uniqueFrames.map(f => `<span class="part-model-tag">${f}</span>`).join(' ')}
-                                    </div>
-                                </div>
-                                <div class="${stockClass}">${stockText}</div>
-                            </div>
-                            
-                            <div class="part-summary-text">
-                                <strong>${totalUnits} unit</strong> terpasang di <strong>${totalCusts} customer</strong> berpotensi butuh part ini:
-                            </div>
-                            
-                            <div class="part-table-wrapper">
-                                <table class="part-table">
-                                    <thead>
-                                        <tr>
-                                            <th>CUSTOMER</th>
-                                            <th>SERIAL</th>
-                                            <th>MODEL</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${tableRows}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                $('#resultContainer').html(html);
+                lastSearchResult = res;
+                renderResults();
             },
             error: function() {
                 $('#resultContainer').html(`
@@ -310,8 +361,9 @@
             clearTimeout(searchTimeout);
             
             if (val.length < 2) {
+                lastSearchResult = null;
                 $('#resultContainer').html(`
-                    <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+                    <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
                         Ketik minimal 2 karakter untuk mulai mencari.
                     </div>
                 `);
@@ -321,6 +373,18 @@
             searchTimeout = setTimeout(function() {
                 performSearch(val);
             }, 300);
+        });
+
+        // Toggle filter buttons click handler
+        $('.btn-toggle').on('click', function() {
+            $('.btn-toggle').removeClass('active');
+            $(this).addClass('active');
+            stockFilter = $(this).attr('data-filter');
+            
+            const val = $('#partSearchInput').val().trim();
+            if (val.length >= 2 && lastSearchResult !== null) {
+                renderResults();
+            }
         });
 
         // Make example labels clickable
