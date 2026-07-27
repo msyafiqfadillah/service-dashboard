@@ -249,7 +249,7 @@ class Inventory_model extends CI_Model {
             inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
             inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
                 and br.CompanyID = ii.CompanyID
-            inner join AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif on a.InventoryID = fif.InventoryID
+            inner join AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif on ii.InventoryID = fif.InventoryID
             inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
             inner join AcumaticaProduction_NEW.dbo.fmPartFrame as fpf on ff.id = fpf.frameId
             left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
