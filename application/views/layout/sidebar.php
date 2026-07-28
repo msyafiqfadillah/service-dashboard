@@ -89,7 +89,7 @@
             $employee_initial = $this->session->userdata('employee_initial');
             
             if (!empty($employee_initial)) {
-                $initials = strtoupper($employee_initial);
+                $initials = strtoupper(substr($employee_initial, 0, 2));
             } else {
                 $fullName = $this->session->userdata('nama');
                 if (!empty($fullName)) {
