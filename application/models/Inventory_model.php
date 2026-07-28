@@ -159,9 +159,9 @@ class Inventory_model extends CI_Model {
                     then (qtyOnHand / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0)) else 0 end) as rasioYear
             from (
                 select distinct tib.inventoryCD, tib.inventoryName, 
-                    count((case when year(trandate) = year(getdate()) - 2 then tbs.inventoryCD end)) as twoYearAgoSold,
-                    count((case when year(trandate) = year(getdate()) - 1 then tbs.inventoryCD end)) as oneYearAgoSold,
-                    count((case when year(trandate) = year(getdate()) then tbs.inventoryCD end)) as currentSold,
+                    sum((case when year(trandate) = year(getdate()) - 2 then tbs.qty end)) as twoYearAgoSold,
+                    sum((case when year(trandate) = year(getdate()) - 1 then tbs.qty end)) as oneYearAgoSold,
+                    sum((case when year(trandate) = year(getdate()) then tbs.qty end)) as currentSold,
                     tib.qtyOnHand
                 from db_fmm.dbo.tb_stagging as tbs
                 inner join (
