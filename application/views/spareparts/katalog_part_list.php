@@ -1,3 +1,13 @@
+<style>
+    .cell-ellipsis {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+</style>
+
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
@@ -68,10 +78,30 @@
             dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
             columns: [
                 { data: "partCd" },
-                { data: "partDesc" },
-                { data: "frame" },
-                { data: "assemblySection" },
-                { data: "application" },
+                { 
+                    data: "partDesc",
+                    render: function(data) {
+                        return `<span class="cell-ellipsis" style="max-width: 180px;" title="${data || ''}">${data || ''}</span>`;
+                    }
+                },
+                { 
+                    data: "frame",
+                    render: function(data) {
+                        return `<span class="cell-ellipsis" style="max-width: 250px;" title="${data || ''}">${data || ''}</span>`;
+                    }
+                },
+                { 
+                    data: "assemblySection",
+                    render: function(data) {
+                        return `<span class="cell-ellipsis" style="max-width: 150px;" title="${data || ''}">${data || ''}</span>`;
+                    }
+                },
+                { 
+                    data: "application",
+                    render: function(data) {
+                        return `<span class="cell-ellipsis" style="max-width: 150px;" title="${data || ''}">${data || ''}</span>`;
+                    }
+                },
                 { 
                     data: "qtyOnHand", 
                     orderable: false,
