@@ -144,8 +144,8 @@ class Inventory_model extends CI_Model {
     public function get_warehouse_stock() {
         $base_sql = $this->_query_warehouse_stock();
 
-        $searchable_columns = array('inventoryCD', 'inventoryName', 'frame', 'itemType');
-        $column_order = array('inventoryCD', 'inventoryName', 'frame', 'qtyOnHand');
+        $searchable_columns = array('inventoryCD', 'inventoryName', 'frame', 'aging', 'itemType');
+        $column_order = array('inventoryCD', 'inventoryName', 'frame', 'aging', 'qtyOnHand');
         $default_sort = "ORDER BY inventoryCD ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
