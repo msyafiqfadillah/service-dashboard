@@ -52,7 +52,7 @@ class Dashboard extends CI_Controller {
     private function _load_maintenance($title, $active_menu)
     {
         $this->load->view('layout/site_tpl', array(
-            "title" => $title . " - FMM Service Dashboard",
+            "title" => $title . " - FMM Population Unit & Part",
             "page_title" => $title,
             "page_subtitle" => "Halaman ini sedang dalam tahap pengembangan",
             "active_menu" => $active_menu,

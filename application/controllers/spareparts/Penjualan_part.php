@@ -14,7 +14,7 @@
             $two_years_ago = $current_year - 2;
 
             $this->load->view('layout/site_tpl', array(
-                "title" => "Penjualan Sparepart - FMM Service Dashboard",
+                "title" => "Penjualan Sparepart - FMM Population Unit & Part",
                 "page_title" => "Penjualan Sparepart",
                 "page_subtitle" => "Penjualan Sparepart {$two_years_ago} – {$current_year}",
                 "active_menu" => "spareparts/penjualan_part",

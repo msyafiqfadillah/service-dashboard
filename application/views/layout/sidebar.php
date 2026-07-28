@@ -3,7 +3,7 @@
         <div class="brand-info">
             <img class="brand-logo-img" src="<?php echo base_url(); ?>assets/images/logo.png" alt="FMM Logo" />
             <div class="brand-text">
-                <span class="brand-title">FMM Service Dashboard</span>
+                <span class="brand-title">FMM Population Unit & Part</span>
             </div>
         </div>
         <div class="brand-collapse" title="Collapse Sidebar">

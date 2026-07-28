@@ -10,7 +10,7 @@
 
         public function index() {
             $this->load->view('layout/site_tpl', array(
-                "title" => "Katalog Sparepart - FMM Service Dashboard",
+                "title" => "Katalog Sparepart - FMM Population Unit & Part",
                 "page_title" => "Katalog Sparepart",
                 "page_subtitle" => "Item dalam katalog",
                 "active_menu" => "spareparts/katalog_part_list",

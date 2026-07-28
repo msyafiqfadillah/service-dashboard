@@ -10,7 +10,7 @@
 
         public function index() {
             $this->load->view('layout/site_tpl', array(
-                "title" => "Stok Gudang - FMM Service Dashboard",
+                "title" => "Stok Gudang - FMM Population Unit & Part",
                 "page_title" => "Stok Gudang",
                 "page_subtitle" => "Stok Gudang",
                 "active_menu" => "spareparts/stok_gudang",
