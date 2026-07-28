@@ -24,7 +24,7 @@
                     'branch_id' => $bra,
                     'id_grup' => $id_grup,
                     'employee_initial' => $employee_initial,
-                    'email' => $email,
+                    'email' => base64_decode($email),
                     'logged_in' => true
                 );
 
