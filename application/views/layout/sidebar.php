@@ -87,37 +87,35 @@
         <?php
             $initials = '';
             $employee_initial = $this->session->userdata('employee_initial');
+            $userEmail = $this->session->userdata('email') ?? 'user@fajarmasmurni.com';
             
             if (!empty($employee_initial)) {
                 $initials = strtoupper(substr($employee_initial, 0, 2));
             } else {
-                $fullName = $this->session->userdata('nama');
-                if (!empty($fullName)) {
-                    $words = explode(' ', trim($fullName));
-                    if (count($words) >= 2) {
-                        $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+                if (!empty($userEmail)) {
+                    $parts = explode('@', $userEmail);
+                    $namePart = $parts[0];
+                    $subParts = explode('.', $namePart);
+                    if (count($subParts) >= 2) {
+                        $initials = strtoupper(substr($subParts[0], 0, 1) . substr($subParts[1], 0, 1));
                     } else {
-                        $initials = strtoupper(substr($words[0], 0, 2));
+                        $initials = strtoupper(substr($namePart, 0, 2));
                     }
                 } else {
                     $initials = 'US';
                 }
             }
-
-            $userName = $this->session->userdata('nama') ?? 'User';
-            $userRole = $this->session->userdata('group') ?? 'Admin';
         ?>
         <div class="sidebar-profile-card">
             <div class="sidebar-profile-left">
                 <div class="avatar-wrapper">
-                    <div class="sidebar-avatar" title="<?= htmlspecialchars($userName) ?>">
+                    <div class="sidebar-avatar" title="<?= htmlspecialchars($userEmail) ?>">
                         <?= htmlspecialchars($initials) ?>
                     </div>
                     <div class="avatar-status"></div>
                 </div>
                 <div class="sidebar-user-info">
-                    <span class="sidebar-user-name" title="<?= htmlspecialchars($userName) ?>"><?= htmlspecialchars($userName) ?></span>
-                    <span class="sidebar-user-role" title="<?= htmlspecialchars($userRole) ?>"><?= htmlspecialchars($userRole) ?></span>
+                    <span class="sidebar-user-name" title="<?= htmlspecialchars($userEmail) ?>"><?= htmlspecialchars($userEmail) ?></span>
                 </div>
             </div>
             <a href="<?= site_url('auth/logout') ?>" class="sidebar-logout" title="Logout">
