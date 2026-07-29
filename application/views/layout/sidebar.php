@@ -48,7 +48,7 @@
     </div> -->
 
     <div class="menu-group">
-        <div class="menu-title">UNIT & PART</div>
+        <div class="menu-title">SPAREPARTS</div>
         <ul class="menu-list">
             <li>
                 <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="menu-item <?= (isset($active_menu) &&  $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
