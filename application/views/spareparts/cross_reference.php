@@ -20,6 +20,33 @@
     </div>
 </div>
 
+<!-- Modal for displaying all models -->
+<div class="modal fade" id="modelsModal" tabindex="-1" role="dialog" aria-labelledby="modelsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color, #E2E8F0); padding: 1rem 1.25rem;">
+                <h5 class="modal-title" id="modelsModalLabel" style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary, #0F172A);">
+                    Daftar Model Mesin
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none; border: none; background: transparent; font-size: 1.5rem; line-height: 1; padding: 0;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1.25rem; max-height: 400px; overflow-y: auto;">
+                <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-secondary, #64748B);">
+                    Part Number: <strong id="modalPartNumber" style="color: var(--text-primary, #0F172A);"></strong>
+                </div>
+                <div id="modalModelsContainer" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    <!-- Models tags will be generated here -->
+                </div>
+            </div>
+            <div class="modal-body-footer" style="border-top: 1px solid var(--border-color, #E2E8F0); padding: 0.75rem 1.25rem; display: flex; justify-content: flex-end; background-color: var(--bg-hover, #F8FAFC); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                <button type="button" class="btn" data-dismiss="modal" style="font-size: 0.8rem; font-weight: 600; padding: 0.4rem 1rem; border-radius: 6px; background-color: var(--card-bg, #FFFFFF); border: 1px solid var(--border-color, #E2E8F0); color: var(--text-secondary, #475569); box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer;">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Compact Cross-Reference Page Styling */
     .xr-container {
@@ -276,6 +303,30 @@
             const uniqueCusts = new Set(group.customers.map(c => c.CustomerName));
             const totalCusts = uniqueCusts.size;
 
+            // Collect all individual models from comma-separated frames
+            let allModels = [];
+            uniqueFrames.forEach(f => {
+                if (f) {
+                    const splitModels = f.split(',').map(m => m.trim()).filter(Boolean);
+                    allModels.push(...splitModels);
+                }
+            });
+            allModels = Array.from(new Set(allModels)); // Deduplicate
+
+            const limit = 8;
+            const displayedModels = allModels.slice(0, limit);
+            const hasMore = allModels.length > limit;
+            const moreCount = allModels.length - limit;
+
+            let modelsHtml = '';
+            displayedModels.forEach(m => {
+                modelsHtml += `<span class="part-model-tag">${m}</span> `;
+            });
+            if (hasMore) {
+                const encodedModels = encodeURIComponent(JSON.stringify(allModels));
+                modelsHtml += `<span class="part-model-tag more-trigger" data-part="${group.partInventoryCd}" data-models="${encodedModels}" style="cursor: pointer; background-color: var(--accent-blue, #3B82F6); color: #FFFFFF; font-weight: 600;" title="Klik untuk melihat semua model">+${moreCount}</span>`;
+            }
+
             // Header part info
             const stockClass = group.qtyOnHand > 0 ? 'part-stock-pill' : 'part-stock-pill empty';
             const stockText = group.qtyOnHand > 0 ? `Stok: ${group.qtyOnHand.toLocaleString('id-ID')}` : 'Stok: Kosong';
@@ -297,7 +348,7 @@
                         <div class="part-title-group">
                             <div class="part-title-text">${group.partInventoryCd} — ${group.partDesc}</div>
                             <div class="part-model-info">
-                                Dipakai di model: ${uniqueFrames.map(f => `<span class="part-model-tag">${f}</span>`).join(' ')}
+                                Dipakai di model: ${modelsHtml}
                             </div>
                         </div>
                         <div class="${stockClass}">${stockText}</div>
@@ -391,6 +442,23 @@
         $('.example-search').on('click', function() {
             const val = $(this).text();
             $('#partSearchInput').val(val).trigger('input');
+        });
+
+        // Trigger models list modal popup
+        $(document).on('click', '.more-trigger', function() {
+            const part = $(this).attr('data-part');
+            const encodedModels = $(this).attr('data-models');
+            const models = JSON.parse(decodeURIComponent(encodedModels));
+
+            $('#modalPartNumber').text(part);
+            
+            let tagsHtml = '';
+            models.forEach(m => {
+                tagsHtml += `<span class="part-model-tag" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background-color: var(--bg-hover, #F1F5F9); color: var(--text-secondary, #475569); border-radius: 4px; font-weight: 600;">${m}</span>`;
+            });
+            
+            $('#modalModelsContainer').html(tagsHtml);
+            $('#modelsModal').modal('show');
         });
     });
 </script>
