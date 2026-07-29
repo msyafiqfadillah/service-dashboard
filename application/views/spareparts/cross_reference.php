@@ -34,7 +34,7 @@
             </div>
             <div class="modal-body" style="padding: 1.25rem; max-height: 400px; overflow-y: auto;">
                 <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-secondary, #64748B);">
-                    Part Number: <strong id="modalPartNumber" style="color: var(--text-primary, #0F172A);"></strong>
+                    <span id="modalPartLabel">Part Number: </span><strong id="modalPartNumber" style="color: var(--text-primary, #0F172A);"></strong>
                 </div>
                 <div id="modalModelsContainer" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
                     <!-- Models tags will be generated here -->
@@ -324,7 +324,7 @@
             });
             if (hasMore) {
                 const encodedModels = encodeURIComponent(JSON.stringify(allModels));
-                modelsHtml += `<span class="part-model-tag more-trigger" data-part="${group.partInventoryCd}" data-models="${encodedModels}" style="cursor: pointer; background-color: var(--accent-blue, #3B82F6); color: #FFFFFF; font-weight: 600;" title="Klik untuk melihat semua model">+${moreCount}</span>`;
+                modelsHtml += `<span class="part-model-tag more-trigger" data-label="Part Number" data-part="${group.partInventoryCd}" data-models="${encodedModels}" style="cursor: pointer; background-color: var(--accent-blue, #3B82F6); color: #FFFFFF; font-weight: 600;" title="Klik untuk melihat semua model">+${moreCount}</span>`;
             }
 
             // Header part info
@@ -333,11 +333,31 @@
 
             let tableRows = '';
             group.customers.forEach(cust => {
+                let rowModels = [];
+                if (cust.frame) {
+                    rowModels = cust.frame.split(',').map(m => m.trim()).filter(Boolean);
+                }
+                rowModels = Array.from(new Set(rowModels)); // Deduplicate
+
+                const rowLimit = 5;
+                const displayedRowModels = rowModels.slice(0, rowLimit);
+                const rowHasMore = rowModels.length > rowLimit;
+                const rowMoreCount = rowModels.length - rowLimit;
+
+                let rowModelsHtml = '';
+                displayedRowModels.forEach(m => {
+                    rowModelsHtml += `<span class="part-model-tag">${m}</span> `;
+                });
+                if (rowHasMore) {
+                    const encodedRowModels = encodeURIComponent(JSON.stringify(rowModels));
+                    rowModelsHtml += `<span class="part-model-tag more-trigger" data-label="Serial Number" data-part="${cust.SerialNumber || '-'}" data-models="${encodedRowModels}" style="cursor: pointer; background-color: var(--accent-blue, #3B82F6); color: #FFFFFF; font-weight: 600;" title="Klik untuk melihat semua model">+${rowMoreCount}</span>`;
+                }
+
                 tableRows += `
                     <tr>
                         <td style="font-weight: 600;">${cust.CustomerName || '-'}</td>
                         <td style="font-variant-numeric: tabular-nums;">${cust.SerialNumber || '-'}</td>
-                        <td><span class="part-model-tag">${cust.frame || '-'}</span></td>
+                        <td>${rowModelsHtml || '-'}</td>
                     </tr>
                 `;
             });
@@ -446,10 +466,12 @@
 
         // Trigger models list modal popup
         $(document).on('click', '.more-trigger', function() {
+            const label = $(this).attr('data-label') || 'Part/Unit';
             const part = $(this).attr('data-part');
             const encodedModels = $(this).attr('data-models');
             const models = JSON.parse(decodeURIComponent(encodedModels));
 
+            $('#modalPartLabel').text(label + ': ');
             $('#modalPartNumber').text(part);
             
             let tagsHtml = '';
