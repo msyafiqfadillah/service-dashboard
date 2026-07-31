@@ -46,11 +46,16 @@ class Inventory_model extends CI_Model {
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 
-    private function _query_populasi_unit($frameId = null) {
+    private function _query_populasi_unit($frameId = null, $branch = null) {
+        $where = "";
         $inner_where = "";
         
         if (isset($frameId)) {
-            $inner_where .= "and ff.id = $frameId";
+            $inner_where .= " and ff.id = $frameId";
+        }
+
+        if (isset($branch)) {
+            $where .= " and BranchCD = '$branch'";
         }
 
         $base_sql = "
@@ -69,7 +74,7 @@ class Inventory_model extends CI_Model {
                 from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
                 inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
                 where 1=1 $inner_where
-            )
+            ) $where
         ";
 
         return $base_sql;
@@ -78,6 +83,13 @@ class Inventory_model extends CI_Model {
     public function get_populasi_unit($frameId) {
         $query = $this->_query_populasi_unit($frameId);
         $result = $this->db->query($query)->result();
+
+        return $result;
+    }
+
+    public function get_populasi_unit_by_branch($branch) {
+        $query = $this->_query_populasi_unit(null, $branch);
+        $result = $this->db->query($query)->result_array();
 
         return $result;
     }

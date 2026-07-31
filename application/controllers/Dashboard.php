@@ -10,7 +10,17 @@ class Dashboard extends CI_Controller {
 
     public function index()
     {
-        $this->_load_maintenance('Dashboard Aftermarket', 'dashboard');
+        $this->load->view('layout/site_tpl', array(
+            "title" => "Dashboard Aftermarket - FMM Population Unit & Part",
+            "page_title" => "Dashboard Aftermarket",
+            "page_subtitle" => "Distribusi populasi unit per wilayah/kantor cabang",
+            "active_menu" => "dashboard",
+            "content" => "dashboard",
+            "data" => array(
+                "get_unit_distribution_url" => site_url('dashboard/get_unit_distribution'),
+                "get_branch_details_url" => site_url('dashboard/get_branch_details')
+            )
+        ));
     }
 
     public function get_unit_distribution() {
@@ -19,29 +29,11 @@ class Dashboard extends CI_Controller {
         echo json_encode($result);
     }
 
-    public function populasi()
-    {
-        $this->_load_maintenance('Populasi Unit', 'populasi');
-    }
+    public function get_branch_details() {
+        $branch = $this->input->get("branch");
+        $result = $this->Inventory_model->get_populasi_unit_by_branch($branch);
 
-    public function master()
-    {
-        $this->_load_maintenance('Master Unit', 'master');
-    }
-
-    public function riwayat()
-    {
-        $this->_load_maintenance('Riwayat Servis', 'riwayat');
-    }
-
-    public function penjualan()
-    {
-        $this->_load_maintenance('Penjualan Sparepart', 'penjualan');
-    }
-
-    public function crossref()
-    {
-        $this->_load_maintenance('Cross-Reference', 'crossref');
+        echo json_encode($result);
     }
 
     public function jadwalpm()
