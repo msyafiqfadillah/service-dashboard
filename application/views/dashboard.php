@@ -290,7 +290,7 @@
                     const customersCount = parseInt(item.CountCustomerCode) || 0;
 
                     html += `
-                        <div class="branch-card" data-branch="${code}" data-name="${name}">
+                        <div class="branch-card" data-branch="${code}" data-name="${name}" data-units="${unitsCount}" data-customers="${customersCount}">
                             <div class="branch-card-header">
                                 <span class="branch-name">${name}</span>
                             </div>
@@ -314,11 +314,11 @@
         });
     };
 
-    const openBranchDrawer = (branchCode, branchName) => {
+    const openBranchDrawer = (branchCode, branchName, units, customers) => {
         $('#drawerBranchName').text(branchName);
         $('#drawerBranchCode').text(branchCode);
-        $('#drawerUnitCount').text('-');
-        $('#drawerCustomerCount').text('-');
+        $('#drawerUnitCount').text(units || '0');
+        $('#drawerCustomerCount').text(customers || '0');
 
         $('#drawerUnitTableBody').html(`
             <tr>
@@ -348,13 +348,6 @@
                     `);
                     return;
                 }
-
-                // Update summary counters
-                const totalUnits = res.length;
-                const uniqueCustomers = new Set(res.map(item => item.CustomerName)).size;
-                
-                $('#drawerUnitCount').text(totalUnits);
-                $('#drawerCustomerCount').text(uniqueCustomers);
 
                 let rowsHtml = '';
                 res.forEach(item => {
@@ -403,7 +396,9 @@
         $(document).on('click', '.branch-card', function () {
             const code = $(this).attr('data-branch');
             const name = $(this).attr('data-name');
-            openBranchDrawer(code, name);
+            const units = $(this).attr('data-units');
+            const customers = $(this).attr('data-customers');
+            openBranchDrawer(code, name, units, customers);
         });
 
         // Close drawer events

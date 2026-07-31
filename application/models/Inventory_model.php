@@ -63,6 +63,11 @@ class Inventory_model extends CI_Model {
                 BranchCD, a.InventoryClassID, c.InventoryClassCode, c.InventoryClassName, 
                 a.InventoryID, ii.InventoryCD, a.InventoryName, a.SerialNumber, d.HoursMeter
             from FMMService.dbo.MasterUnit a
+            inner join (
+                select max(MasterUnitID) as MasterUnitID, SerialNumber
+                from FMMService.dbo.MasterUnit ia
+                group by SerialNumber
+            ) as a2 on a.MasterUnitID = a2.MasterUnitID
             inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID 
             inner join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
                 and br.CompanyID = ii.CompanyID
@@ -74,7 +79,7 @@ class Inventory_model extends CI_Model {
                 from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
                 inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
                 where 1=1 $inner_where
-            ) $where
+            ) and nullif(rtrim(ltrim(a.SerialNumber)), '') is not null $where
         ";
 
         return $base_sql;
