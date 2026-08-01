@@ -67,7 +67,7 @@
         $('#drawerBackdrop').addClass('show');
         $('#sideDrawer').addClass('show');
 
-        if (!frameId) {
+        if (!partCd || partCd === '-') {
             $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
             $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">Tidak ada unit customer yang terdaftar untuk unit ini.</div>');
             return;
@@ -77,7 +77,7 @@
         $.ajax({
             url: '<?php echo $url_target; ?>',
             type: 'POST',
-            data: { frameId },
+            data: { partCd },
             dataType: 'json',
             success: function(res) {
                 const listData = Array.isArray(res) ? res : (res && res.data ? res.data : []);

@@ -12,10 +12,15 @@ class Inventory_model extends CI_Model {
 
     private function _query_part_list() {
         $base_sql = "
-            select distinct cast(fpf.partInventoryCd as varchar(max)) as partCd, cast(fpf.descr as varchar(max)) as partDesc, 
-                cast(fpf.assemblySection as varchar(max)) as assemblySection, ff.id as frameId,
-                cast(ff.frame as varchar(max)) as frame, cast(fpf.application as varchar(max)) as application,
-                x.qtyOnHand, ii.baseUnit
+            select cast(fpf.partInventoryCd as varchar(100)) as partCd, 
+                max(cast(fpf.descr as varchar(max))) as partDesc, 
+                max(cast(fpf.application as varchar(max))) as application,
+                max(x.qtyOnHand) as qtyOnHand, 
+                max(ii.baseUnit) as baseUnit,
+                count(distinct ff.id) as frameCount,
+                count(distinct cast(fpf.assemblySection as varchar(max))) as assemblyCount,
+                max(cast(ff.frame as varchar(max))) as frame,
+                max(cast(fpf.assemblySection as varchar(max))) as assemblySection
             from fmPartFrame as fpf
             inner join InventoryItem as ii on fpf.partInventoryId = ii.InventoryID and ii.CompanyID = 2
             left join fmFrame as ff on fpf.frameId = ff.id
@@ -29,9 +34,11 @@ class Inventory_model extends CI_Model {
                     and FinPeriodID = (
                         select max(FinPeriodID)
                         from db_fmm.dbo.tb_InventoryBalance
-                ) 
+                        where CompanyID = 2
+                    ) 
                 group by InventoryID, InventoryCD, InventoryName
             ) as x on fpf.partInventoryId = x.InventoryID
+            group by cast(fpf.partInventoryCd as varchar(100))
         ";
 
         return $base_sql;
@@ -46,12 +53,12 @@ class Inventory_model extends CI_Model {
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 
-    private function _query_populasi_unit($frameId = null, $branch = null) {
+    private function _query_populasi_unit($inventoryCd = null, $branch = null) {
         $where = "";
         $inner_where = "";
         
-        if (isset($frameId)) {
-            $inner_where .= " and ff.id = $frameId";
+        if (isset($inventoryCd)) {
+            $inner_where .= " and cast(fpf.PartInventoryCD as varchar(max)) = '$inventoryCd'";
         }
 
         if (isset($branch)) {
@@ -78,6 +85,7 @@ class Inventory_model extends CI_Model {
                 select fif.inventoryId
                 from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
                 inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+                inner join AcumaticaProduction_NEW.dbo.fmPartFrame as fpf on ff.id = fpf.frameId
                 where 1=1 $inner_where
             ) and nullif(rtrim(ltrim(a.SerialNumber)), '') is not null $where
         ";
@@ -85,8 +93,8 @@ class Inventory_model extends CI_Model {
         return $base_sql;
     }
 
-    public function get_populasi_unit($frameId) {
-        $query = $this->_query_populasi_unit($frameId);
+    public function get_populasi_unit($inventoryCd) {
+        $query = $this->_query_populasi_unit($inventoryCd);
         $result = $this->db->query($query)->result();
 
         return $result;
@@ -296,5 +304,16 @@ class Inventory_model extends CI_Model {
         $result = $this->db->query($base_sql, array($term, $term))->result_array();
 
         return $result;
+    }
+
+    public function get_part_frames_assemblies($partCd) {
+        $sql = "
+            select distinct cast(ff.frame as varchar(max)) as frame, 
+                   cast(fpf.assemblySection as varchar(max)) as assemblySection
+            from fmPartFrame as fpf
+            left join fmFrame as ff on fpf.frameId = ff.id
+            where cast(fpf.partInventoryCd as varchar(100)) = ?
+        ";
+        return $this->db->query($sql, array($partCd))->result_array();
     }
 }

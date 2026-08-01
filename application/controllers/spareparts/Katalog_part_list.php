@@ -17,7 +17,8 @@
                 "content" => "spareparts/katalog_part_list",
                 "data" => array(
                     "katalog_part_list_url" => site_url('spareparts/katalog_part_list/get_part_list'),
-                    "populasi_unit_url" => site_url('spareparts/katalog_part_list/get_populasi_unit')
+                    "populasi_unit_url" => site_url('spareparts/katalog_part_list/get_populasi_unit'),
+                    "get_part_details_url" => site_url('spareparts/katalog_part_list/get_part_details')
                 )
             ));
         }
@@ -29,9 +30,15 @@
         }
 
         public function get_populasi_unit() {
-            $frameId = $this->input->post('frameId');
+            $partCd = $this->input->post('partCd');
+            $result = $this->Inventory_model->get_populasi_unit($partCd);
 
-            $result = $this->Inventory_model->get_populasi_unit($frameId);
+            echo json_encode($result);
+        }
+
+        public function get_part_details() {
+            $partCd = $this->input->post('partCd');
+            $result = $this->Inventory_model->get_part_frames_assemblies($partCd);
 
             echo json_encode($result);
         }
