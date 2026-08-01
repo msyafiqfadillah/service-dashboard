@@ -79,7 +79,7 @@
                 { 
                     data: "frame",
                     render: function(data, type, row) {
-                        return data ? data : `<span style="color: var(--text-secondary); opacity: 0.6;">Tidak terpetakan ke fleet RM55-75/RM30-45</span>`;
+                        return data ? `<span class="cell-ellipsis" style="max-width: 320px;" title="${data}">${data}</span>` : `<span style="color: var(--text-secondary); opacity: 0.6;">Tidak terpetakan ke fleet RM55-75/RM30-45</span>`;
                     }
                 },
                 { data: "aging" },
