@@ -108,10 +108,11 @@
         background-color: var(--bg-hover, #F8FAFC);
         border: 1px solid var(--border-color, #E2E8F0);
         border-radius: 8px;
-        padding: 0.85rem 1rem;
+        padding: 1rem 1.25rem;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
+        align-items: center;
         cursor: pointer;
         position: relative;
         overflow: hidden;
@@ -121,8 +122,8 @@
     .branch-card:hover {
         background-color: var(--card-bg, #FFFFFF);
         transform: translateY(-2px);
-        border-color: var(--accent-blue, #3B82F6);
-        box-shadow: 0 6px 12px -3px rgba(59, 130, 246, 0.08), 0 3px 5px -1px rgba(59, 130, 246, 0.02);
+        border-color: var(--accent-color);
+        box-shadow: 0 6px 12px -3px rgba(15, 23, 42, 0.05), 0 3px 5px -1px rgba(15, 23, 42, 0.01);
     }
     .branch-card::before {
         content: '';
@@ -131,17 +132,11 @@
         left: 0;
         width: 3px;
         height: 0;
-        background-color: var(--accent-blue, #3B82F6);
+        background-color: var(--accent-color);
         transition: height 0.25s ease;
     }
     .branch-card:hover::before {
         height: 100%;
-    }
-    .branch-card-header {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-        margin-bottom: 0.65rem;
     }
     .branch-name {
         font-size: 0.95rem;
@@ -150,23 +145,6 @@
     }
     .branch-code {
         display: none;
-    }
-    .branch-card-body {
-        margin-bottom: 0.5rem;
-    }
-    .branch-unit-count {
-        font-size: 1.45rem;
-        font-weight: 800;
-        color: var(--accent-green, #10B981);
-        line-height: 1.1;
-        margin-bottom: 0.2rem;
-    }
-    .branch-customer-info {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: var(--text-secondary, #64748B);
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
     }
 
     /* Off-Canvas side drawer layout */
@@ -256,9 +234,24 @@
         '04 PLB': 'Palembang',
         '05 BPP': 'Balikpapan',
         '06 BTM': 'Batam',
+        '09 PKU': 'Pekanbaru',
         '12 SMG': 'Semarang',
         '14 MKS': 'Makassar'
     };
+
+    const branchMeta = {
+        '00 HO': { icon: 'fa-solid fa-building-flag', color: '#10B981', bg: '#E6F4EA' }, // Bekasi (Green)
+        '02 SBY': { icon: 'fa-solid fa-bridge', color: '#2563EB', bg: '#E8F0FE' },       // Surabaya (Blue)
+        '03 MDN': { icon: 'fa-solid fa-gopuram', color: '#8B5CF6', bg: '#F5F3FF' },      // Medan (Purple)
+        '04 PLB': { icon: 'fa-solid fa-bridge-water', color: '#F97316', bg: '#FFF7ED' }, // Palembang (Orange)
+        '05 BPP': { icon: 'fa-solid fa-oil-well', color: '#06B6D4', bg: '#ECFEFF' },     // Balikpapan (Cyan)
+        '06 BTM': { icon: 'fa-solid fa-ship', color: '#EC4899', bg: '#FDF2F8' },         // Batam (Pink)
+        '09 PKU': { icon: 'fa-solid fa-mosque', color: '#14B8A6', bg: '#F0FDFA' },       // Pekanbaru (Teal)
+        '12 SMG': { icon: 'fa-solid fa-landmark', color: '#10B981', bg: '#E6F4EA' },     // Semarang (Green)
+        '14 MKS': { icon: 'fa-solid fa-anchor', color: '#F59E0B', bg: '#FEF3C7' }        // Makassar (Amber)
+    };
+
+    const defaultMeta = { icon: 'fa-solid fa-building', color: '#3B82F6', bg: '#E8F0FE' };
 
     const loadDashboardData = () => {
         $('#branchGrid').html(`
@@ -288,15 +281,17 @@
                     const name = branchNames[code] || code;
                     const unitsCount = parseInt(item.CountSerialNumber) || 0;
                     const customersCount = parseInt(item.CountCustomerCode) || 0;
+                    const meta = branchMeta[code] || defaultMeta;
 
                     html += `
-                        <div class="branch-card" data-branch="${code}" data-name="${name}" data-units="${unitsCount}" data-customers="${customersCount}">
-                            <div class="branch-card-header">
-                                <span class="branch-name">${name}</span>
+                        <div class="branch-card" data-branch="${code}" data-name="${name}" data-units="${unitsCount}" data-customers="${customersCount}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span class="branch-name" style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">${name}</span>
+                                <div class="branch-unit-count" style="font-size: 1.6rem; font-weight: 800; color: ${meta.color}; line-height: 1.1; margin: 0.1rem 0;">${unitsCount}</div>
+                                <span class="branch-customer-info" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">UNIT • ${customersCount} CUSTOMER</span>
                             </div>
-                            <div class="branch-card-body">
-                                <div class="branch-unit-count">${unitsCount}</div>
-                                <div class="branch-customer-info">UNIT • ${customersCount} CUSTOMER</div>
+                            <div style="width: 42px; height: 42px; border-radius: 10px; background-color: ${meta.bg}; color: ${meta.color}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);">
+                                <i class="${meta.icon}"></i>
                             </div>
                         </div>
                     `;
