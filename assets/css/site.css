@@ -979,3 +979,11 @@ table.dataTable thead th.sorting_asc,
 table.dataTable thead th.sorting_desc {
     padding-right: 2.2rem !important;
 }
+
+.cell-ellipsis {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
