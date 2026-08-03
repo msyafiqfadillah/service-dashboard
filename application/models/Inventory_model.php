@@ -109,9 +109,16 @@ class Inventory_model extends CI_Model {
 
     private function _query_warehouse_stock() {
         $base_sql = "
-            select v.inventoryCD, v.inventoryName, v.baseUnit,
-                v.frame, v.frameId, right(iic.descr, 4) as itemType, 
-                v.qtyOnHand, v.aging, format(max(c.SalesPrice), 'N0') as salesPrice
+            select v.inventoryCD, 
+                max(v.inventoryName) as inventoryName, 
+                max(v.baseUnit) as baseUnit,
+                count(distinct v.frameId) as frameCount,
+                max(v.frame) as frame,
+                max(v.frameId) as frameId,
+                max(right(iic.descr, 4)) as itemType, 
+                max(v.qtyOnHand) as qtyOnHand, 
+                max(v.aging) as aging, 
+                format(max(c.SalesPrice), 'N0') as salesPrice
             from (
                 -- unit
                 select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
@@ -159,8 +166,7 @@ class Inventory_model extends CI_Model {
                 and v.CompanyID = c.CompanyID
             inner join INItemClass as iic on v.itemClassId = iic.itemClassId 
                 and v.CompanyID = iic.CompanyID
-            group by v.inventoryCD, v.inventoryName, v.baseUnit,
-                v.frame, v.frameId, v.qtyOnHand, iic.descr, v.aging
+            group by v.inventoryCD
         ";
 
         return $base_sql;

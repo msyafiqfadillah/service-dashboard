@@ -42,6 +42,37 @@
     </div>
 </div>
 
+<!-- MODAL FOR DRAWER PART MODELS -->
+<div class="modal fade" id="drawerPartModelsModal" tabindex="-1" role="dialog" aria-labelledby="drawerPartModelsModalLabel" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px;">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;">
+            <div class="modal-header" style="background-color: var(--bg-hover, #F8FAFC); border-bottom: 1px solid var(--border-color, #E2E8F0); padding: 1rem 1.25rem;">
+                <div>
+                    <h5 class="modal-title" id="drawerPartModelsModalLabel" style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Daftar Frame / Model</h5>
+                    <span id="drawerModalPartCodeSub" style="font-size: 0.72rem; color: var(--text-secondary, #64748B); font-weight: 600;">-</span>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 1.25rem; color: var(--text-secondary, #64748B); opacity: 0.8; outline: none; border: none; background: transparent;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1.25rem;">
+                <div style="border: 1px solid var(--border-color, #E2E8F0); border-radius: 8px; overflow: hidden; max-height: 350px; overflow-y: auto;">
+                    <table class="table" style="width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 0.8rem; table-layout: fixed;">
+                        <thead>
+                            <tr style="background-color: var(--bg-hover, #F8FAFC); border-bottom: 1px solid var(--border-color, #E2E8F0);">
+                                <th style="padding: 0.6rem 0.8rem; font-weight: 700; color: var(--text-secondary, #64748B); border-top: none; border-bottom: none; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">FRAME / MODEL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drawerPartModelsTableBody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Open & Close Side Drawer Logic
     const openDrawer = (partData) => {       
@@ -50,12 +81,47 @@
         const qtyOnHand = partData.qtyOnHand || 0;
         const frame = partData.frame || '-';
         const frameId = partData.frameId;
-        const baseUnit = partData.baseUnit.toLowerCase();
+        const baseUnit = partData.baseUnit ? partData.baseUnit.toLowerCase() : 'ea';
 
         $('#drawerPartCode').text(partCd);
         $('#drawerPartDesc').text(partDesc);
         $('#drawerStok').text(qtyOnHand + ` ${baseUnit}`);
-        $('#drawerModel').text(frame);
+
+        $('#drawerModel').html(`
+            <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue, #3B82F6); font-size: 0.85rem;"></i>
+        `);
+
+        $.ajax({
+            url: '<?php echo site_url("spareparts/katalog_part_list/get_part_details"); ?>',
+            type: 'POST',
+            data: { partCd: partCd },
+            dataType: 'json',
+            success: function(res) {
+                let uniqueFrames = [];
+                if (Array.isArray(res)) {
+                    const framesMap = {};
+                    res.forEach(item => {
+                        const f = item.frame ? item.frame.trim() : '';
+                        if (f && !framesMap[f]) {
+                            framesMap[f] = true;
+                            uniqueFrames.push(f);
+                        }
+                    });
+                }
+
+                if (uniqueFrames.length > 1) {
+                    const encodedModels = encodeURIComponent(JSON.stringify(uniqueFrames));
+                    $('#drawerModel').html(`<span class="btn-view-drawer-models" style="color: var(--accent-blue, #3B82F6); font-weight: 600; cursor: pointer; text-decoration: none;" data-part="${partCd}" data-models="${encodedModels}">${uniqueFrames[0]}...</span>`);
+                } else if (uniqueFrames.length === 1) {
+                    $('#drawerModel').text(uniqueFrames[0]);
+                } else {
+                    $('#drawerModel').text('-');
+                }
+            },
+            error: function() {
+                $('#drawerModel').text('-');
+            }
+        });
 
         $('#drawerUnitList').html(`
             <div style="text-align: center; padding: 2rem 0; color: #64748B;">
@@ -138,6 +204,29 @@
                 const partData = JSON.parse(decodeURIComponent(rawData));
                 openDrawer(partData);
             }
+        });
+
+        // Click handler to open drawer part models modal
+        $(document).on('click', '.btn-view-drawer-models', function() {
+            const partCd = $(this).attr('data-part');
+            const encodedModels = $(this).attr('data-models');
+            const models = JSON.parse(decodeURIComponent(encodedModels));
+
+            $('#drawerModalPartCodeSub').text('Part No: ' + partCd);
+            
+            let rowsHtml = '';
+            models.forEach(m => {
+                rowsHtml += `
+                    <tr>
+                        <td style="padding: 0.6rem 0.8rem; border-top: 1px solid var(--border-color, #E2E8F0); font-weight: 600; color: var(--text-primary, #0F172A); word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
+                            ${m}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $('#drawerPartModelsTableBody').html(rowsHtml);
+            $('#drawerPartModelsModal').modal('show');
         });
 
         // Close drawer handlers
