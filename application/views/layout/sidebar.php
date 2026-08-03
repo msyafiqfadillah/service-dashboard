@@ -6,9 +6,6 @@
                 <span class="brand-title">FMM Population Unit & Part</span>
             </div>
         </div>
-        <div class="brand-collapse" title="Collapse Sidebar">
-            <i class="fa-solid fa-indent"></i>
-        </div>
     </div>
 
     <div class="menu-group">
@@ -22,30 +19,6 @@
             </li>
         </ul>
     </div>
-
-    <!-- <div class="menu-group">
-        <div class="menu-title">UNIT</div>
-        <ul class="menu-list">
-            <li>
-                <a href="<?= site_url('dashboard/populasi') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'populasi') ? 'active' : '' ?>">
-                    <span class="menu-icon"><i class="fa-solid fa-chart-simple"></i></span>
-                    Populasi Unit
-                </a>
-            </li>
-            <li>
-                <a href="<?= site_url('dashboard/master') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'master') ? 'active' : '' ?>">
-                    <span class="menu-icon"><i class="fa-solid fa-wrench"></i></span>
-                    Master Unit
-                </a>
-            </li>
-            <li>
-                <a href="<?= site_url('dashboard/riwayat') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'riwayat') ? 'active' : '' ?>">
-                    <span class="menu-icon"><i class="fa-regular fa-file-lines"></i></span>
-                    Riwayat Servis
-                </a>
-            </li>
-        </ul>
-    </div> -->
 
     <div class="menu-group">
         <div class="menu-title">SPAREPARTS</div>

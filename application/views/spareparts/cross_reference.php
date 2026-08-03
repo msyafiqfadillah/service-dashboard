@@ -14,8 +14,11 @@
         </div>
     </div>
     <div id="resultContainer">
-        <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-            Ketik minimal 2 karakter untuk mulai mencari.
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; gap: 1.25rem; animation: fadeIn 0.3s ease-in-out;">
+            <img src="<?= base_url() ?>assets/images/undraw_file-searching_yska.svg" alt="Mulai mencari" style="width: 220px; height: auto; max-width: 100%; opacity: 0.85;">
+            <div class="xr-subtitle" style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; line-height: 1.5;">
+                Ketik minimal 2 karakter untuk mulai mencari.
+            </div>
         </div>
     </div>
 </div>
@@ -434,8 +437,11 @@
             if (val.length < 2) {
                 lastSearchResult = null;
                 $('#resultContainer').html(`
-                    <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                        Ketik minimal 2 karakter untuk mulai mencari.
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; gap: 1.25rem; animation: fadeIn 0.3s ease-in-out;">
+                        <img src="<?= base_url() ?>assets/images/undraw_file-searching_yska.svg" alt="Mulai mencari" style="width: 220px; height: auto; max-width: 100%; opacity: 0.85;">
+                        <div class="xr-subtitle" style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; line-height: 1.5;">
+                            Ketik minimal 2 karakter untuk mulai mencari.
+                        </div>
                     </div>
                 `);
                 return;
