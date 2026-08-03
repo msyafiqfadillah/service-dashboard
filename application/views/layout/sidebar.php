@@ -1,11 +1,11 @@
 <aside class="sidebar">
     <div class="brand">
-        <div class="brand-info">
+        <a href="https://eps.fajarmasmurni.com/dasbor" class="brand-info" style="text-decoration: none; color: inherit;">
             <img class="brand-logo-img" src="<?php echo base_url(); ?>assets/images/logo.png" alt="FMM Logo" />
             <div class="brand-text">
                 <span class="brand-title">FMM Population Unit & Part</span>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="menu-group">
