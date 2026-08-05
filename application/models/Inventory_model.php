@@ -8,6 +8,7 @@ class Inventory_model extends CI_Model {
         parent::__construct();
         
         $this->load->database();
+        $this->load->library('datatable_handler');
     }
 
     private function _query_part_list() {
@@ -320,6 +321,91 @@ class Inventory_model extends CI_Model {
             left join fmFrame as ff on fpf.frameId = ff.id
             where cast(fpf.partInventoryCd as varchar(100)) = ?
         ";
+
         return $this->db->query($sql, array($partCd))->result_array();
+    }
+
+    private function _query_airend_rotary() {
+        $sql = "
+            select cast(faf.region as varchar(100)) as region, 
+                cast(faf.category as varchar(100)) as category, 
+                cast(faf.model as varchar(255)) as model, 
+                cast(faf.identitySize as varchar(255)) as identitySize, 
+                cast(faf.factoryRebuiltCcn as varchar(100)) as factoryRebuiltCcn,
+                faf.factoryRebuiltApdc,
+                cast(faf.factoryRebuiltBackup as varchar(255)) as factoryRebuiltBackup,
+                (case when tib1.inventoryCd is not null then tib1.qtyOnHand else 0 end) as frbQtyOnHand,
+                cast(faf.newAirendCcn as varchar(100)) as newAirendCcn,
+                (case when tib2.inventoryCd is not null then tib2.qtyOnHand else 0 end) as naQtyOnHand,
+                cast(faf.rebuiltKitAirend as varchar(100)) as rebuiltKitAirendCcn,
+                faf.rebuiltKitAirendApdc,
+                (case when tib3.inventoryCd is not null then tib3.qtyOnHand else 0 end) as rkaQtyOnHand
+            from fmAirendFrame as faf
+            left join (
+                select InventoryCD, sum(QtyOnhand) as qtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                    and FinPeriodID = (
+                        select max(FinPeriodID)
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                    )
+                group by InventoryCD
+            ) as tib1 on cast(faf.factoryRebuiltCcn as varchar(100)) = tib1.InventoryCd
+            left join (
+                select InventoryCD, sum(QtyOnhand) as qtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                    and FinPeriodID = (
+                        select max(FinPeriodID)
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                    )
+                group by InventoryCD
+            ) as tib2 on cast(faf.newAirendCcn as varchar(100)) = tib2.InventoryCd
+            left join (
+                select InventoryCD, sum(QtyOnhand) as qtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                    and FinPeriodID = (
+                        select max(FinPeriodID)
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                    )
+                group by InventoryCD
+            ) as tib3 on cast(faf.rebuiltKitAirend as varchar(100)) = tib3.InventoryCd
+        ";
+
+        return $sql;
+    }
+
+    public function get_airend_rotary() {
+        $base_sql = $this->_query_airend_rotary();
+
+        $searchable_columns = array(
+            'region', 'model', 'category', 'identitySize', 
+            'factoryRebuiltCcn', 'factoryRebuiltApdc', 'factoryRebuiltBackup',
+            'frbQtyOnHand', 'newAirendCcn', 'naQtyOnHand',
+            'rebuiltKitAirendCcn', 'rebuiltKitAirendApdc', 'rkaQtyOnHand'
+        );
+        $column_order = array(
+            'region', 'model', 'category', 'identitySize', 
+            'factoryRebuiltCcn', 'factoryRebuiltApdc', 'factoryRebuiltBackup',
+            'frbQtyOnHand', 'newAirendCcn', 'naQtyOnHand',
+            'rebuiltKitAirendCcn', 'rebuiltKitAirendApdc', 'rkaQtyOnHand'
+        );
+        $default_sort = "ORDER BY model ASC";
+
+        return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+    }
+
+    public function get_airend_rotary_filter_options() {
+        $regions = $this->db->query("select distinct cast(region as varchar(100)) as region from fmAirendFrame where region is not null and cast(region as varchar(100)) != '' order by region asc")->result_array();
+        $categories = $this->db->query("select distinct cast(category as varchar(100)) as category from fmAirendFrame where category is not null and cast(category as varchar(100)) != '' order by category asc")->result_array();
+        
+        return array(
+            'regions' => array_column($regions, 'region'),
+            'categories' => array_column($categories, 'category')
+        );
     }
 }
