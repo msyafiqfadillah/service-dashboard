@@ -4,29 +4,6 @@
         <div class="table-title">Katalog Airend Rotary</div>
     </div>
 
-    <!-- TOOLBAR SEARCH & FILTERS -->
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-        <div class="search-box" style="flex: 1; min-width: 260px; max-width: 420px;">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="airendSearchInput" placeholder="Cari model, category, airend size, atau CCN...">
-        </div>
-        
-        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            <select id="regionFilter" class="filter-select" style="width: auto; min-width: 150px;">
-                <option value="">Semua region</option>
-            </select>
-            <select id="categoryFilter" class="filter-select" style="width: auto; min-width: 170px;">
-                <option value="">Semua category</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- INFO BANNER -->
-    <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: 8px; padding: 0.85rem 1.1rem; font-size: 0.83rem; line-height: 1.5; margin-bottom: 1.25rem;">
-        <i class="fa-solid fa-circle-info" style="margin-right: 6px; color: var(--accent-blue);"></i>
-        Airend adalah unit rotor inti kompresor screw. Untuk tiap model, tabel menunjukkan 3 opsi penggantian: <strong>Factory Rebuilt</strong> (airend rekondisi pabrik), <strong>New</strong> (airend baru), atau <strong>Rebuild Kit</strong> (kit seal/bearing untuk rebuild airend existing) &mdash; beserta status stok APDC bila tersedia.
-    </div>
-
     <!-- TABLE -->
     <div class="table-responsive" style="border: none;">
         <table id="AirendRotaryTable" class="table" style="width: 100%;">
@@ -145,8 +122,9 @@
                 processing: true,
                 bFilter: true,
                 bAutoWidth: false,
-                dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
+                dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
                 pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
                 ordering: true,
                 order: [],
                 columns: [
@@ -253,21 +231,5 @@
                     }
                 },
             });
-
-        // Search Input Functionality
-        $('#airendSearchInput').on('keyup search input', function() {
-            airendTable.search(this.value).draw();
-        });
-
-        // Filter Dropdowns Functionality
-        $('#regionFilter').on('change', function() {
-            let val = $.fn.dataTable.util.escapeRegex($(this).val());
-            airendTable.column(0).search(val ? '^' + val + '$' : '', true, false).draw();
-        });
-
-        $('#categoryFilter').on('change', function() {
-            let val = $.fn.dataTable.util.escapeRegex($(this).val());
-            airendTable.column(1).search(val ? '^' + val + '$' : '', true, false).draw();
-        });
     });
 </script>

@@ -50,12 +50,6 @@
         <div style="display: flex; flex-direction: column; gap: 2px;">
             <div class="table-title" style="margin-bottom: 0;"><?= $page_subtitle; ?></div>
         </div>
-        <div class="table-actions" style="gap: 0.75rem; flex-wrap: wrap;">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="customSearchInput" placeholder="Cari part number, deskripsi, atau nama customer...">
-            </div>
-        </div>
     </div>
 
     <table id="SparepartSalesList">
@@ -110,7 +104,8 @@
             bFilter: true,
             bAutoWidth: false,
             pageLength: 10,
-            dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
+            lengthMenu: [10, 25, 50, 100],
+            dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
             order: [[5, 'desc']], // Default sort by Total Sold Descending            
             columns: [
                 { 

@@ -2,15 +2,6 @@
 <div class="table-card">
     <div class="table-header">
         <div class="table-title">Stok Gudang (On Hand)</div>
-        <div class="table-actions">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="customSearchInput" placeholder="Cari inventory ID atau deskripsi...">
-            </div>
-            <!-- <button class="btn-export">
-                <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i>
-            </button> -->
-        </div>
     </div>
 
     <table id="StokGudangList">
@@ -97,7 +88,8 @@
             bFilter: true,
             bAutoWidth: false,
             pageLength: 10,
-            dom: 'rt<"dt-footer-container"i<"dt-rows-per-page">p>',
+            dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+            lengthMenu: [10, 25, 50, 100],
             columns: [
                 { 
                     data: "inventoryCD",
