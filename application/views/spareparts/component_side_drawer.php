@@ -92,7 +92,7 @@
         `);
 
         $.ajax({
-            url: '<?php echo site_url("spareparts/katalog_part_list/get_part_details"); ?>',
+            url: '<?php echo site_url("spareparts/katalog/katalog_part_list/get_part_details"); ?>',
             type: 'POST',
             data: { partCd: partCd },
             dataType: 'json',
