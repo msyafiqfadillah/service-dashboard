@@ -23,11 +23,29 @@
     <div class="menu-group">
         <div class="menu-title">SPAREPARTS</div>
         <ul class="menu-list">
-            <li>
-                <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="menu-item <?= (isset($active_menu) &&  $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
-                    <span class="menu-icon"><i class="fa-solid fa-cube"></i></span>
-                    Katalog Parts
+            <?php 
+                $is_katalog_active = isset($active_menu) && in_array($active_menu, ['spareparts/katalog_part_list', 'spareparts/airend_rotary']);
+            ?>
+            <li class="has-submenu <?= $is_katalog_active ? 'open' : '' ?>">
+                <a href="javascript:void(0);" class="menu-item menu-parent <?= $is_katalog_active ? 'active-parent' : '' ?>" onclick="toggleSubmenu(this)">
+                    <span class="menu-icon"><i class="fa-solid fa-book-open"></i></span>
+                    <span class="menu-label" style="flex: 1;">Katalog</span>
+                    <span class="submenu-arrow"><i class="fa-solid fa-chevron-down"></i></span>
                 </a>
+                <ul class="submenu-list" style="<?= $is_katalog_active ? 'display: flex;' : 'display: none;' ?>">
+                    <li>
+                        <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
+                            <span class="submenu-icon"><i class="fa-solid fa-cube"></i></span>
+                            Katalog Parts
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= site_url('spareparts/airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
+                            <span class="submenu-icon"><i class="fa-solid fa-rotate"></i></span>
+                            Katalog Airend Rotary
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li>
                 <a href="<?= site_url('spareparts/stok_gudang') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/stok_gudang') ? 'active' : '' ?>">
@@ -45,12 +63,6 @@
                 <a href="<?= site_url('spareparts/cross_reference') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/cross_reference') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-right-left"></i></span>
                     Cross-Reference
-                </a>
-            </li>
-            <li>
-                <a href="<?= site_url('spareparts/airend_rotary') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
-                    <span class="menu-icon"><i class="fa-solid fa-rotate"></i></span>
-                    Katalog Airend Rotary
                 </a>
             </li>
             <li>
@@ -225,4 +237,82 @@
         transform: scale(1.05);
         box-shadow: 0 2px 4px rgba(239, 68, 68, 0.08);
     }
+
+    /* Submenu Styles */
+    .has-submenu {
+        list-style: none;
+    }
+    .submenu-arrow {
+        font-size: 0.7rem;
+        transition: transform 0.25s ease;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+    }
+    .has-submenu.open .submenu-arrow {
+        transform: rotate(180deg);
+    }
+    .menu-parent.active-parent {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    .menu-parent.active-parent .menu-icon {
+        color: var(--accent-blue, #3B82F6);
+    }
+    .submenu-list {
+        list-style: none;
+        padding-left: 0.5rem;
+        margin: 0.2rem 0 0.3rem 0.8rem;
+        border-left: 2px solid var(--border-color, #E2E8F0);
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+    .submenu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 6px;
+        color: var(--text-secondary, #64748B);
+        text-decoration: none !important;
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .submenu-item:hover {
+        background-color: var(--bg-card-hover, #F8FAFC);
+        color: var(--text-primary, #0F172A);
+    }
+    .submenu-item.active {
+        background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+        color: #FFFFFF !important;
+        font-weight: 600;
+        box-shadow: 0 3px 8px rgba(99, 102, 241, 0.25);
+    }
+    .submenu-item.active .submenu-icon {
+        color: #FFFFFF !important;
+    }
+    .submenu-icon {
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        color: var(--text-secondary, #64748B);
+    }
 </style>
+
+<script>
+    function toggleSubmenu(element) {
+        const parentLi = element.closest('.has-submenu');
+        const submenu = parentLi.querySelector('.submenu-list');
+        if (parentLi.classList.contains('open')) {
+            parentLi.classList.remove('open');
+            $(submenu).slideUp(200);
+        } else {
+            parentLi.classList.add('open');
+            $(submenu).slideDown(200);
+        }
+    }
+</script>
