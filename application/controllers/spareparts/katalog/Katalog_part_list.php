@@ -13,12 +13,12 @@
                 "title" => "Katalog Sparepart - FMM Population Unit & Part",
                 "page_title" => "Katalog Sparepart",
                 "page_subtitle" => "Item dalam katalog",
-                "active_menu" => "spareparts/katalog_part_list",
-                "content" => "spareparts/katalog_part_list",
+                "active_menu" => "spareparts/katalog/katalog_part_list",
+                "content" => "spareparts/katalog/katalog_part_list",
                 "data" => array(
-                    "katalog_part_list_url" => site_url('spareparts/katalog_part_list/get_part_list'),
-                    "populasi_unit_url" => site_url('spareparts/katalog_part_list/get_populasi_unit'),
-                    "get_part_details_url" => site_url('spareparts/katalog_part_list/get_part_details')
+                    "katalog_part_list_url" => site_url('spareparts/katalog/katalog_part_list/get_part_list'),
+                    "populasi_unit_url" => site_url('spareparts/katalog/katalog_part_list/get_populasi_unit'),
+                    "get_part_details_url" => site_url('spareparts/katalog/katalog_part_list/get_part_details')
                 )
             ));
         }

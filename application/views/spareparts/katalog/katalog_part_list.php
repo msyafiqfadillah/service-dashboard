@@ -11,7 +11,7 @@
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
-        <div class="table-title">Daftar Sparepart</div>
+        <div class="table-title">Katalog Parts</div>
     </div>
 
     <table id="KatalogPartList">

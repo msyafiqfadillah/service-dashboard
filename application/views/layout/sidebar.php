@@ -34,13 +34,13 @@
                 </a>
                 <ul class="submenu-list" style="<?= $is_katalog_active ? 'display: flex;' : 'display: none;' ?>">
                     <li>
-                        <a href="<?= site_url('spareparts/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
+                        <a href="<?= site_url('spareparts/katalog/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-cube"></i></span>
                             Katalog Parts
                         </a>
                     </li>
                     <li>
-                        <a href="<?= site_url('spareparts/airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
+                        <a href="<?= site_url('spareparts/katalog/katalog_airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-rotate"></i></span>
                             Katalog Airend Rotary
                         </a>
