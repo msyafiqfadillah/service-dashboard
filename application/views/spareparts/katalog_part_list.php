@@ -133,7 +133,6 @@
                 },
                 { 
                     data: "qtyOnHand", 
-                    orderable: false,
                     render: function(data, type, row, meta) {
                         let badgeClass = 'green';
 

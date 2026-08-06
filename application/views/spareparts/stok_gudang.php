@@ -124,7 +124,12 @@
                         return `<span class="badge-stock ${badgeClass}">${data}</span>`;
                     }
                 },
-                { data: "salesPrice" },
+                { 
+                    data: "salesPrice",
+                    render: function (data, type, row) {
+                        return currency(data);
+                    }
+                },
                 { 
                     data: null,
                     className: "text-center",

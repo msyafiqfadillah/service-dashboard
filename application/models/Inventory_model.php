@@ -47,8 +47,8 @@ class Inventory_model extends CI_Model {
 
     public function get_part_list() {
         $base_sql = $this->_query_part_list();
-        $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame');
-        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application');
+        $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand');
+        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application', 'qtyOnHand');
         $default_sort = "order by partCd ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
@@ -111,7 +111,7 @@ class Inventory_model extends CI_Model {
     private function _query_warehouse_stock() {
         $base_sql = "
             select v.inventoryCD, 
-                max(v.inventoryName) as inventoryName, 
+                max(rtrim(ltrim(v.inventoryName))) as inventoryName, 
                 max(v.baseUnit) as baseUnit,
                 count(distinct v.frameId) as frameCount,
                 max(v.frame) as frame,
@@ -119,7 +119,7 @@ class Inventory_model extends CI_Model {
                 max(right(iic.descr, 4)) as itemType, 
                 max(v.qtyOnHand) as qtyOnHand, 
                 max(v.aging) as aging, 
-                format(max(c.SalesPrice), 'N0') as salesPrice
+                max(c.SalesPrice) as salesPrice
             from (
                 -- unit
                 select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
@@ -176,8 +176,8 @@ class Inventory_model extends CI_Model {
     public function get_warehouse_stock() {
         $base_sql = $this->_query_warehouse_stock();
 
-        $searchable_columns = array('inventoryCD', 'inventoryName', 'frame', 'aging', 'itemType');
-        $column_order = array('inventoryCD', 'inventoryName', 'frame', 'aging', 'qtyOnHand');
+        $searchable_columns = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'salesPrice');
+        $column_order = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'salesPrice');
         $default_sort = "ORDER BY inventoryCD ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
@@ -225,12 +225,14 @@ class Inventory_model extends CI_Model {
     public function get_sparepart_sales() {
         $base_sql = $this->_query_sparepart_sales();
 
-        $searchable_columns = array('inventoryCD', 'inventoryName', 
+        $searchable_columns = array('inventoryCD', 'inventoryName',
+            'fourYearAgoSold', 'threeYearAgoSold',
             'twoYearAgoSold', 'oneYearAgoSold', 
-            'currentSold', 'qtyOnHand', 'rasioYear');
+            'currentSold', 'totalSold', 'qtyOnHand');
         $column_order = array('inventoryCD', 'inventoryName', 
+            'fourYearAgoSold', 'threeYearAgoSold',
             'twoYearAgoSold', 'oneYearAgoSold', 
-            'currentSold', 'qtyOnHand', 'rasioYear');
+            'currentSold', 'totalSold', 'qtyOnHand');
         $default_sort = "order by inventoryCD asc";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
@@ -386,16 +388,12 @@ class Inventory_model extends CI_Model {
         $base_sql = $this->_query_airend_rotary();
 
         $searchable_columns = array(
-            'region', 'model', 'category', 'identitySize', 
-            'factoryRebuiltCcn', 'factoryRebuiltApdc', 'factoryRebuiltBackup',
-            'frbQtyOnHand', 'newAirendCcn', 'naQtyOnHand',
-            'rebuiltKitAirendCcn', 'rebuiltKitAirendApdc', 'rkaQtyOnHand'
+            'region', 'category', 'model', 'identitySize', 
+            'factoryRebuiltCcn', 'newAirendCcn', 'rebuiltKitAirendCcn'
         );
         $column_order = array(
-            'region', 'model', 'category', 'identitySize', 
-            'factoryRebuiltCcn', 'factoryRebuiltApdc', 'factoryRebuiltBackup',
-            'frbQtyOnHand', 'newAirendCcn', 'naQtyOnHand',
-            'rebuiltKitAirendCcn', 'rebuiltKitAirendApdc', 'rkaQtyOnHand'
+            'region', 'category', 'model', 'identitySize', 
+            'factoryRebuiltCcn', 'newAirendCcn', 'rebuiltKitAirendCcn'
         );
         $default_sort = "ORDER BY model ASC";
 

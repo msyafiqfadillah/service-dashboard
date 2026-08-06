@@ -50,7 +50,7 @@
             <li>
                 <a href="<?= site_url('spareparts/airend_rotary') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-rotate"></i></span>
-                    Airend Rotary
+                    Katalog Airend Rotary
                 </a>
             </li>
             <li>
