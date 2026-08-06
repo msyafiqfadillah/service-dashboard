@@ -24,7 +24,6 @@
         border: 1px solid #E2E8F0;
         color: #94A3B8;
     }
-    
     .badge-ratio {
         display: inline-block;
         padding: 0.2rem 0.5rem;
@@ -82,7 +81,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
             </td>
