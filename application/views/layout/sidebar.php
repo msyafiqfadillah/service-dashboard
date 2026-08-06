@@ -24,7 +24,10 @@
         <div class="menu-title">SPAREPARTS</div>
         <ul class="menu-list">
             <?php 
-                $is_katalog_active = isset($active_menu) && in_array($active_menu, ['spareparts/katalog_part_list', 'spareparts/airend_rotary']);
+                $is_katalog_active = isset($active_menu) && in_array($active_menu, [
+                    'spareparts/katalog/katalog_part_list', 
+                    'spareparts/katalog/katalog_airend_rotary'
+                ]);
             ?>
             <li class="has-submenu <?= $is_katalog_active ? 'open' : '' ?>">
                 <a href="javascript:void(0);" class="menu-item menu-parent <?= $is_katalog_active ? 'active-parent' : '' ?>" onclick="toggleSubmenu(this)">
@@ -34,13 +37,13 @@
                 </a>
                 <ul class="submenu-list" style="<?= $is_katalog_active ? 'display: flex;' : 'display: none;' ?>">
                     <li>
-                        <a href="<?= site_url('spareparts/katalog/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog_part_list') ? 'active' : '' ?>">
+                        <a href="<?= site_url('spareparts/katalog/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_part_list') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-cube"></i></span>
                             Katalog Parts
                         </a>
                     </li>
                     <li>
-                        <a href="<?= site_url('spareparts/katalog/katalog_airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/airend_rotary') ? 'active' : '' ?>">
+                        <a href="<?= site_url('spareparts/katalog/katalog_airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_airend_rotary') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-rotate"></i></span>
                             Katalog Airend Rotary
                         </a>
