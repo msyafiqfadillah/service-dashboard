@@ -185,12 +185,15 @@ class Inventory_model extends CI_Model {
 
     private function _query_sparepart_sales() {
         $base_sql = "
-            select rtrim(ltrim(inventoryCD)) as inventoryCD, inventoryName, twoYearAgoSold, oneYearAgoSold, currentSold, 
-                (twoYearAgoSold + oneYearAgoSold + currentSold) as totalSold, qtyOnHand, 
-                (case when (twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0 > 0 
-                    then (qtyOnHand / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0)) else 0 end) as rasioYear
+            select rtrim(ltrim(inventoryCD)) as inventoryCD, inventoryName, 
+                fourYearAgoSold, threeYearAgoSold, twoYearAgoSold, oneYearAgoSold, currentSold, 
+                (fourYearAgoSold + threeYearAgoSold + twoYearAgoSold + oneYearAgoSold + currentSold) as totalSold, qtyOnHand 
+                --, (case when (twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0 > 0 
+                --    then (qtyOnHand / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0)) else 0 end) as rasioYear
             from (
                 select distinct tib.inventoryCD, tib.inventoryName, 
+                    sum((case when year(trandate) = year(getdate()) - 4 then tbs.qty else 0 end)) as fourYearAgoSold,
+                    sum((case when year(trandate) = year(getdate()) - 3 then tbs.qty else 0 end)) as threeYearAgoSold,
                     sum((case when year(trandate) = year(getdate()) - 2 then tbs.qty else 0 end)) as twoYearAgoSold,
                     sum((case when year(trandate) = year(getdate()) - 1 then tbs.qty else 0 end)) as oneYearAgoSold,
                     sum((case when year(trandate) = year(getdate()) then tbs.qty else 0 end)) as currentSold,

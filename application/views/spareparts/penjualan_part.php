@@ -57,6 +57,8 @@
             <tr>
                 <th>Part No</th>
                 <th>Deskripsi</th>
+                <th style="text-align: right; width: 80px;"><?= $data["four_years_ago"]; ?></th>
+                <th style="text-align: right; width: 80px;"><?= $data["three_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["two_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["one_year_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["current_year"]; ?></th>
@@ -115,6 +117,20 @@
                     }
                 },
                 { data: "inventoryName" },
+                { 
+                    data: "fourYearAgoSold",
+                    className: "text-right",
+                    render: function(data) {
+                        return data ? parseInt(data).toLocaleString('id-ID') : 0;
+                    }
+                },
+                { 
+                    data: "threeYearAgoSold",
+                    className: "text-right",
+                    render: function(data) {
+                        return data ? parseInt(data).toLocaleString('id-ID') : 0;
+                    }
+                },
                 { 
                     data: "twoYearAgoSold",
                     className: "text-right",

@@ -12,18 +12,22 @@
             $current_year = date('Y');
             $one_year_ago = $current_year - 1;
             $two_years_ago = $current_year - 2;
+            $three_years_ago = $current_year - 3;
+            $four_years_ago = $current_year - 4;
 
             $this->load->view('layout/site_tpl', array(
                 "title" => "Penjualan Sparepart - FMM Population Unit & Part",
                 "page_title" => "Penjualan Sparepart",
-                "page_subtitle" => "Penjualan Sparepart {$two_years_ago} – {$current_year}",
+                "page_subtitle" => "Penjualan Sparepart {$four_years_ago} – {$current_year}",
                 "active_menu" => "spareparts/penjualan_part",
                 "content" => "spareparts/penjualan_part",
                 "data" => array(
                     "sparepart_sales" => site_url('spareparts/penjualan_part/get_sparepart_sales'),
                     "current_year" => $current_year,
                     "one_year_ago" => $one_year_ago,
-                    "two_years_ago" => $two_years_ago
+                    "two_years_ago" => $two_years_ago,
+                    "three_years_ago" => $three_years_ago,
+                    "four_years_ago" => $four_years_ago
                 )
             ));
         }
