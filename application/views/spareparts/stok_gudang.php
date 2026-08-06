@@ -14,7 +14,8 @@
                 <th>Aging</th>
                 <th style="text-align: center; width: 120px;">Qty On Hand</th>
                 <th>Pricelist</th>
-                <th style="text-align: center; width: 140px;">Potensi Jual</th>
+                <th style="text-align: center; width: 80px;">Potensi Jual</th>
+                <th style="text-align: center; width: 80px;">List Customer</th>
             </tr>
         </thead>
         <tbody>
@@ -29,6 +30,7 @@
 </div>
 
 <?php $this->load->view('spareparts/component_side_drawer', array("url_target" => $data["populasi_unit_url"])); ?>
+<?php $this->load->view('spareparts/component_customer_drawer'); ?>
 
 <!-- MODAL FOR PART DETAILS -->
 <div class="modal fade" id="partDetailsModal" tabindex="-1" role="dialog" aria-labelledby="partDetailsModalLabel" aria-hidden="true" style="z-index: 1060;">
@@ -64,7 +66,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
             </td>
@@ -140,6 +142,21 @@
                             <div class="action-btns" style="justify-content: center;">
                                 <button class="btn-action-icon btn-view-populasi" data-row="${rowDataAttr}" title="Lihat Populasi Unit Customer">
                                     <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                },
+                { 
+                    data: null,
+                    className: "text-center",
+                    orderable: false,
+                    render: function(data, type, row) {
+                        const rowDataAttr = encodeURIComponent(JSON.stringify(row));
+                        return `
+                           <div class="action-btns" style="justify-content: center;">
+                                <button class="btn-action-icon btn-view-customer" data-row="${rowDataAttr}" title="Lihat Detail History Penjualan">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
                                 </button>
                             </div>
                         `;
@@ -230,6 +247,15 @@
                     `);
                 }
             });
+        });
+
+        // Click handler to open top customer / sales history drawer
+        $(document).on('click', '.btn-view-customer', function() {
+            const rawData = $(this).attr('data-row');
+            if (rawData) {
+                const rowData = JSON.parse(decodeURIComponent(rawData));
+                openCustDrawer(rowData.inventoryCD, rowData.inventoryName, rowData.totalSold || 0, rowData.qtyOnHand);
+            }
         });
     });
 </script>

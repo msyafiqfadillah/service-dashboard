@@ -3,7 +3,7 @@
 <div class="side-drawer customer-drawer" id="custSideDrawer">
     <div class="drawer-header">
         <button class="btn-close-drawer" id="btnCloseCustDrawer"><i class="fa-solid fa-xmark"></i></button>
-        <div class="drawer-sub-title">RIWAYAT PENJUALAN <?= $data["two_years_ago"] ?>–<?= $data["current_year"] ?></div>
+        <div class="drawer-sub-title">RIWAYAT PENJUALAN</div>
         <div class="drawer-part-code" id="custDrawerPartCode">-</div>
         <div class="drawer-part-desc" id="custDrawerPartDesc">-</div>
         
@@ -118,10 +118,13 @@
 
                 if (listData.length > 0) {
                     let html = '';
+                    let sumSold = 0;
                     listData.forEach(item => {
                         const custName = item.customerName || '-';
                         const branchRaw = item.branchCD ? item.branchCD.trim() : '-';
-                        const qtyVal = item.qty ? parseInt(item.qty).toLocaleString('id-ID') : 0;
+                        const qtyNum = item.qty ? parseInt(item.qty) : 0;
+                        sumSold += qtyNum;
+                        const qtyVal = qtyNum.toLocaleString('id-ID');
                         const lastTranDate = item.tranDate ? item.tranDate.substring(0, 10) : '-';
 
                         html += `
@@ -133,6 +136,9 @@
                             </tr>
                         `;
                     });
+                    if (!totalSold || parseInt(totalSold) === 0) {
+                        $('#custDrawerTotalSold').text(sumSold.toLocaleString('id-ID'));
+                    }
                     $('#custDrawerList').html(html);
                 } else {
                     $('#custDrawerList').html(`
