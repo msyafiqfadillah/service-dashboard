@@ -409,4 +409,61 @@ class Inventory_model extends CI_Model {
             'categories' => array_column($categories, 'category')
         );
     }
+
+    private function _query_lubricant_coolant() {
+        $sql = "
+            select cast(flf.ccn as varchar(max)) as ccn,
+                max(cast(flf.description as varchar(max))) as description,
+                max(cast(flf.category as varchar(max))) as category,
+                max(cast(flf.baseStock as varchar(max))) as baseStock,
+                max(cast(flf.serviceLife as varchar(max))) as serviceLife,
+                max(cast(flf.containerSize as varchar(max))) as containerSize,
+                max(cast(flf.containerType as varchar(max))) as containerType,
+                max(cast(flf.applicationUsed as varchar(max))) as applicationUsed,
+                max(cast(flf.isovg as varchar(max))) as isovg,
+                count(distinct cast(ff.frame as varchar(max))) as frameCount,
+                max(cast(ff.frame as varchar(max))) as frame,
+                isnull(max(tib.qtyOnHand), 0) as qtyOnHand
+            from fmLubricantFrame as flf
+            inner join (
+                select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                    and QtyOnHand > 0
+                    and FinPeriodID = (
+                        select max(FinPeriodID)
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                    )
+                group by InventoryID, InventoryCD, InventoryName
+            ) as tib on cast(flf.ccn as varchar(max)) = tib.InventoryCD
+            left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
+            group by cast(flf.ccn as varchar(max))
+        ";
+
+        return $sql;
+    }
+
+    public function get_lubricant_coolant() {
+        $base_sql = $this->_query_lubricant_coolant();
+        $searchable_columns = array(
+            'ccn', 'description', 'category', 'frame', 'containerSize', 'containerType', 'applicationUsed'
+        );
+        $column_order = array(
+            'ccn', 'frame', 'description', 'category', 'containerSize', 'qtyOnHand'
+        );
+        $default_sort = "ORDER BY ccn ASC";
+
+        return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+    }
+
+    public function get_lubricant_details($ccn) {
+        $sql = "
+            select distinct cast(ff.frame as varchar(max)) as frame
+            from fmLubricantFrame as flf
+            left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
+            where cast(flf.ccn as varchar(max)) = ?
+        ";
+        return $this->db->query($sql, array($ccn))->result_array();
+    }
 }
