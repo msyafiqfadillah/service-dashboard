@@ -8,7 +8,7 @@
         <thead>
             <tr>
                 <th style="width: 110px;">CCN</th>
-                <th style="width: 180px;">Frame</th>
+                <th style="width: 260px;">Frame</th>
                 <th>Product</th>
                 <th style="width: 220px;">Category</th>
                 <th style="width: 140px;">Packaging</th>
@@ -119,12 +119,12 @@
                     data: "frame",
                     render: function(data, type, row) {
                         let frameCount = parseInt(row.frameCount) || 0;
+                        let formattedData = data ? data.split(',').join(', ') : '';
                         if (frameCount > 1) {
-                            let displayStr = data ? data.split(',')[0] : 'Frame List';
-                            return `<span class="cell-ellipsis btn-view-lubricant-frames" style="max-width: 180px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-ccn="${row.ccn}" title="Klik untuk lihat semua frame">${displayStr}...</span>`;
+                            return `<span class="cell-ellipsis btn-view-lubricant-frames" style="max-width: 320px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-ccn="${row.ccn}" title="Klik untuk lihat semua frame">${formattedData}...</span>`;
                         }
                         if (frameCount === 1 && data) {
-                            return `<span class="cell-ellipsis" style="max-width: 180px;" title="${data}">${data}</span>`;
+                            return `<span class="cell-ellipsis" style="max-width: 320px;" title="${data}">${formattedData}</span>`;
                         }
                         return `<span style="color: var(--text-muted);">—</span>`;
                     }
