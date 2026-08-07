@@ -13,7 +13,7 @@ class Dashboard extends CI_Controller {
         $this->load->view('layout/site_tpl', array(
             "title" => "Dashboard Aftermarket - FMM Population Unit & Part",
             "page_title" => "Dashboard Aftermarket",
-            "page_subtitle" => "Distribusi populasi unit per wilayah/kantor cabang",
+            "page_subtitle" => "Distribution of units by region/branch office",
             "active_menu" => "dashboard",
             "content" => "dashboard",
             "data" => array(

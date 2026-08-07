@@ -13,8 +13,8 @@
 <div class="content-area">
     <div class="dashboard-card-container">
         <div class="dashboard-section-title-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
-            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Distribusi Unit per Branch</h2>
-            <span style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-hover, #F1F5F9); color: var(--text-secondary, #64748B); padding: 0.15rem 0.4rem; border-radius: 4px;">klik branch untuk detail</span>
+            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Unit Distribution by Branch</h2>
+            <span style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-hover, #F1F5F9); color: var(--text-secondary, #64748B); padding: 0.15rem 0.4rem; border-radius: 4px;">Click on a branch for details</span>
         </div>
 
         <div class="branch-grid" id="branchGrid">
@@ -234,7 +234,7 @@
         '04 PLB': 'Palembang',
         '05 BPP': 'Balikpapan',
         '06 BTM': 'Batam',
-        '09 PKU': 'Pekanbaru',
+        '09 PKB': 'Pekanbaru',
         '12 SMG': 'Semarang',
         '14 MKS': 'Makassar'
     };
@@ -246,7 +246,7 @@
         '04 PLB': { icon: 'fa-solid fa-bridge-water', color: '#F97316', bg: '#FFF7ED' }, // Palembang (Orange)
         '05 BPP': { icon: 'fa-solid fa-oil-well', color: '#06B6D4', bg: '#ECFEFF' },     // Balikpapan (Cyan)
         '06 BTM': { icon: 'fa-solid fa-ship', color: '#EC4899', bg: '#FDF2F8' },         // Batam (Pink)
-        '09 PKU': { icon: 'fa-solid fa-mosque', color: '#14B8A6', bg: '#F0FDFA' },       // Pekanbaru (Teal)
+        '09 PKB': { icon: 'fa-solid fa-mosque', color: '#14B8A6', bg: '#F0FDFA' },       // Pekanbaru (Teal)
         '12 SMG': { icon: 'fa-solid fa-landmark', color: '#10B981', bg: '#E6F4EA' },     // Semarang (Green)
         '14 MKS': { icon: 'fa-solid fa-anchor', color: '#F59E0B', bg: '#FEF3C7' }        // Makassar (Amber)
     };
