@@ -257,7 +257,7 @@
         $('#branchGrid').html(`
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 2rem; margin-bottom: 0.75rem;"></i>
-                <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Memuat data distribusi unit...</div>
+                <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Loading unit distribution data...</div>
             </div>
         `);
 
@@ -269,7 +269,7 @@
                 if (!Array.isArray(res) || res.length === 0) {
                     $('#branchGrid').html(`
                         <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                            Tidak ada data distribusi unit.
+                            There is no data on unit distribution.
                         </div>
                     `);
                     return;
@@ -302,7 +302,7 @@
             error: function () {
                 $('#branchGrid').html(`
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: #EF4444;">
-                        Gagal memuat data. Silakan klik tombol Refresh.
+                        Failed to load data. Please click the Refresh button.
                     </div>
                 `);
             }
@@ -337,7 +337,7 @@
                     $('#drawerUnitTableBody').html(`
                         <tr>
                             <td colspan="3" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
-                                Tidak ada data unit untuk branch ini.
+                                There is no unit data for this branch.
                             </td>
                         </tr>
                     `);
@@ -365,7 +365,7 @@
                 $('#drawerUnitTableBody').html(`
                     <tr>
                         <td colspan="3" style="text-align: center; padding: 3rem 1rem; color: #EF4444;">
-                            Gagal memuat detail data unit.
+                            Failed to load unit data details.
                         </td>
                     </tr>
                 `);

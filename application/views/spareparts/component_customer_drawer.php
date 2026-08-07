@@ -144,7 +144,7 @@
                     $('#custDrawerList').html(`
                         <tr>
                             <td colspan="4" style="text-align: center; padding: 2rem 0; color: #64748B;">
-                                Tidak ada riwayat pembelian customer.
+                                There is no purchase history for this customer.
                             </td>
                         </tr>
                     `);
@@ -154,7 +154,7 @@
                 $('#custDrawerList').html(`
                     <tr>
                         <td colspan="4" style="text-align: center; padding: 2rem 0; color: #EF4444;">
-                            Gagal memuat data top customer.
+                            Failed to load top customer data.
                         </td>
                     </tr>
                 `);

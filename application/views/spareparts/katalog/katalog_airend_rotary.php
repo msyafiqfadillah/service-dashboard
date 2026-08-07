@@ -1,7 +1,7 @@
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
-        <div class="table-title">Katalog Airend Rotary</div>
+        <div class="table-title">Airend Rotary Catalog</div>
     </div>
 
     <!-- TABLE -->
@@ -22,7 +22,7 @@
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                         <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                        <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                     </td>
                 </tr>
             </tbody>
@@ -88,7 +88,7 @@
             <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
             </tr>
         `;

@@ -1,23 +1,23 @@
 <div class="xr-container">
     <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 0.5rem;">
         <div class="xr-title">Cross-Reference Part → Model → Customer</div>
-        <div class="xr-subtitle">Cari 1 part number, temukan seluruh customer yang berpotensi membutuh part tersebut</div>
+        <div class="xr-subtitle">Search for 1 part number, find all customers who might need that part</div>
     </div>
     <div class="xr-search-card" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
         <div class="xr-search-box" style="flex: 1; max-width: 420px;">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="partSearchInput" placeholder="Ketik part number atau kata kunci deskripsi..." autofocus>
+            <input type="text" id="partSearchInput" placeholder="Type in the part number or a descriptive keyword..." autofocus>
         </div>
         <div class="stock-toggle-container">
-            <button class="btn-toggle active" data-filter="all">Semua</button>
-            <button class="btn-toggle" data-filter="instock">Ada Stok</button>
+            <button class="btn-toggle active" data-filter="all">All</button>
+            <button class="btn-toggle" data-filter="instock">In stock</button>
         </div>
     </div>
     <div id="resultContainer">
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; gap: 1.25rem; animation: fadeIn 0.3s ease-in-out;">
             <img src="<?= base_url() ?>assets/images/undraw_file-searching_yska.svg" alt="Mulai mencari" style="width: 220px; height: auto; max-width: 100%; opacity: 0.85;">
             <div class="xr-subtitle" style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; line-height: 1.5;">
-                Ketik minimal 2 karakter untuk mulai mencari.
+                Type at least 2 characters to start your search.
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
         <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);">
             <div class="modal-header" style="border-bottom: 1px solid var(--border-color, #E2E8F0); padding: 1rem 1.25rem;">
                 <h5 class="modal-title" id="modelsModalLabel" style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary, #0F172A);">
-                    Daftar Model Mesin
+                    List of Engine Models
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none; border: none; background: transparent; font-size: 1.5rem; line-height: 1; padding: 0;">
                     <span aria-hidden="true">&times;</span>
@@ -253,7 +253,7 @@
         if (!Array.isArray(lastSearchResult) || lastSearchResult.length === 0) {
             $('#resultContainer').html(`
                 <div class="xr-subtitle" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                    Tidak ada part atau customer yang cocok dengan kata kunci tersebut.
+                    No parts or customers match that keyword.
                 </div>
             `);
             return;
@@ -290,7 +290,7 @@
         if (groupsArray.length === 0) {
             $('#resultContainer').html(`
                 <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                    Tidak ada part berstok yang cocok dengan kata kunci tersebut.
+                    There are no parts in stock that match those keywords.
                 </div>
             `);
             return;
@@ -371,7 +371,7 @@
                         <div class="part-title-group">
                             <div class="part-title-text">${group.partInventoryCd} — ${group.partDesc}</div>
                             <div class="part-model-info">
-                                Dipakai di model: ${modelsHtml}
+                                Used in the following models: ${modelsHtml}
                             </div>
                         </div>
                         <div class="${stockClass}">${stockText}</div>
@@ -406,7 +406,7 @@
         $('#resultContainer').html(`
             <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 2rem; margin-bottom: 0.75rem;"></i>
-                <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Mencari cross reference...</div>
+                <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Searching for a cross-reference...</div>
             </div>
         `);
 
@@ -422,7 +422,7 @@
             error: function() {
                 $('#resultContainer').html(`
                     <div style="text-align: center; padding: 4rem 1rem; color: #EF4444;">
-                        Gagal melakukan pencarian. Silakan coba lagi.
+                        The search failed. Please try again.
                     </div>
                 `);
             }
@@ -440,7 +440,7 @@
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1rem; gap: 1.25rem; animation: fadeIn 0.3s ease-in-out;">
                         <img src="<?= base_url() ?>assets/images/undraw_file-searching_yska.svg" alt="Mulai mencari" style="width: 220px; height: auto; max-width: 100%; opacity: 0.85;">
                         <div class="xr-subtitle" style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; line-height: 1.5;">
-                            Ketik minimal 2 karakter untuk mulai mencari.
+                            Type at least 2 characters to start your search.
                         </div>
                     </div>
                 `);

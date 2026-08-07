@@ -55,14 +55,14 @@
         <thead>
             <tr>
                 <th>Part No</th>
-                <th>Deskripsi</th>
+                <th>Description</th>
                 <th style="text-align: right; width: 80px;"><?= $data["four_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["three_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["two_years_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["one_year_ago"]; ?></th>
                 <th style="text-align: right; width: 80px;"><?= $data["current_year"]; ?></th>
-                <th style="text-align: right; width: 110px; cursor: help;" title="Quantity Per item Per invoice">Total Terjual</th>
-                <th style="text-align: center; width: 110px;">Stok Saat Ini</th>
+                <th style="text-align: right; width: 110px; cursor: help;" title="Quantity Per item Per invoice">Total Sold</th>
+                <th style="text-align: center; width: 110px;">Current Stock</th>
                 <!-- <th style="text-align: center; width: 180px;">Rasio Stok/Rata² Tahunan</th> -->
                 <th style="text-align: center; width: 120px;">List Customer</th>
             </tr>
@@ -71,7 +71,7 @@
             <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
             </tr>
         </tbody>
@@ -83,7 +83,7 @@
         <tr>
             <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
         </tr>
     `;
@@ -163,7 +163,7 @@
                     className: "text-center",
                     render: function(data) {
                         if (data === null || data === undefined || parseFloat(data) <= 0) {
-                            return `<span class="badge-stock grey">Tidak ada</span>`;
+                            return `<span class="badge-stock grey">Empty</span>`;
                         }
                         
                         let stockVal = Math.round(parseFloat(data));
@@ -201,12 +201,14 @@
                 }
             ],
             language: {
-                zeroRecords: "Tidak ada data yang cocok ditemukan",
-                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
-                infoFiltered: "(disaring dari _MAX_ total entri)",
-                processing: "Memuat Data..."
-            }
+                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                paginate: {
+                    first: '<i class="fa-solid fa-angles-left"></i>',
+                    previous: '<i class="fa-solid fa-angle-left"></i>',
+                    next: '<i class="fa-solid fa-angle-right"></i>',
+                    last: '<i class="fa-solid fa-angles-right"></i>'
+                }
+            },
         });
 
         // Search Input

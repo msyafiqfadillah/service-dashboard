@@ -11,7 +11,7 @@
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
-        <div class="table-title">Katalog Parts</div>
+        <div class="table-title">Parts Catalog</div>
     </div>
 
     <table id="KatalogPartList">
@@ -30,7 +30,7 @@
             <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
             </tr>
         </tbody>
@@ -75,7 +75,7 @@
         <tr>
             <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Memuat data...</div>
+                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
         </tr>
     `;
@@ -210,7 +210,7 @@
                         $('#partDetailsTableBody').html(`
                             <tr>
                                 <td style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
-                                    Tidak ada detail frame untuk part ini.
+                                    There are no frame details for this part.
                                 </td>
                             </tr>
                         `);
@@ -224,7 +224,7 @@
                         $('#partDetailsTableBody').html(`
                             <tr>
                                 <td style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
-                                    Tidak ada data frame.
+                                    There is no data frame.
                                 </td>
                             </tr>
                         `);
@@ -245,7 +245,7 @@
                     $('#partDetailsTableBody').html(`
                         <tr>
                             <td style="text-align: center; padding: 1.5rem; color: #EF4444;">
-                                Gagal memuat data detail frame.
+                                Failed to load frame details.
                             </td>
                         </tr>
                     `);
@@ -287,7 +287,7 @@
                         $('#partDetailsTableBody').html(`
                             <tr>
                                 <td colspan="2" style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
-                                    Tidak ada detail assembly untuk part ini.
+                                    There are no assembly details for this part.
                                 </td>
                             </tr>
                         `);
@@ -311,7 +311,7 @@
                         $('#partDetailsTableBody').html(`
                             <tr>
                                 <td colspan="2" style="text-align: center; padding: 1.5rem; color: var(--text-secondary);">
-                                    Tidak ada data assembly.
+                                    There is no assembly data.
                                 </td>
                             </tr>
                         `);
@@ -333,7 +333,7 @@
                     $('#partDetailsTableBody').html(`
                         <tr>
                             <td style="text-align: center; padding: 1.5rem; color: #EF4444;">
-                                Gagal memuat data detail assembly.
+                                Failed to load assembly details.
                             </td>
                         </tr>
                     `);

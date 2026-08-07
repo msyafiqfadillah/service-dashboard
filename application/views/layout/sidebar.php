@@ -26,26 +26,33 @@
             <?php 
                 $is_katalog_active = isset($active_menu) && in_array($active_menu, [
                     'spareparts/katalog/katalog_part_list', 
-                    'spareparts/katalog/katalog_airend_rotary'
+                    'spareparts/katalog/katalog_airend_rotary',
+                    'spareparts/katalog/katalog_lubricant_coolant'
                 ]);
             ?>
             <li class="has-submenu <?= $is_katalog_active ? 'open' : '' ?>">
                 <a href="javascript:void(0);" class="menu-item menu-parent <?= $is_katalog_active ? 'active-parent' : '' ?>" onclick="toggleSubmenu(this)">
                     <span class="menu-icon"><i class="fa-solid fa-book-open"></i></span>
-                    <span class="menu-label" style="flex: 1;">Katalog</span>
+                    <span class="menu-label" style="flex: 1;">Catalog</span>
                     <span class="submenu-arrow"><i class="fa-solid fa-chevron-down"></i></span>
                 </a>
                 <ul class="submenu-list" style="<?= $is_katalog_active ? 'display: flex;' : 'display: none;' ?>">
                     <li>
                         <a href="<?= site_url('spareparts/katalog/katalog_part_list') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_part_list') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-cube"></i></span>
-                            Katalog Parts
+                            Parts Catalog
                         </a>
                     </li>
                     <li>
                         <a href="<?= site_url('spareparts/katalog/katalog_airend_rotary') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_airend_rotary') ? 'active' : '' ?>">
                             <span class="submenu-icon"><i class="fa-solid fa-rotate"></i></span>
-                            Katalog Airend Rotary
+                            Airend Rotary Catalog
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= site_url('spareparts/katalog/katalog_lubricant_coolant') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_lubricant_coolant') ? 'active' : '' ?>">
+                            <span class="submenu-icon"><i class="fa-solid fa-flask"></i></span>
+                            Lubricant & Coolant Catalog
                         </a>
                     </li>
                 </ul>
@@ -53,13 +60,13 @@
             <li>
                 <a href="<?= site_url('spareparts/stok_gudang') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/stok_gudang') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-cubes"></i></span>
-                    Stok Gudang
+                    Warehouse Stock
                 </a>
             </li>
             <li>
                 <a href="<?= site_url('spareparts/penjualan_part') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'spareparts/penjualan_part') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-solid fa-cart-shopping"></i></span>
-                    Penjualan Sparepart
+                    Sparepart Sales
                 </a>
             </li>
             <li>
