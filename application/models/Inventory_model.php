@@ -450,7 +450,7 @@ class Inventory_model extends CI_Model {
             'ccn', 'description', 'category', 'frame', 'containerSize', 'containerType', 'applicationUsed'
         );
         $column_order = array(
-            'ccn', 'frame', 'description', 'category', 'containerSize', 'qtyOnHand'
+            'ccn', 'description', 'frame', 'category', 'containerSize', 'qtyOnHand'
         );
         $default_sort = "ORDER BY ccn ASC";
 
