@@ -1,9 +1,15 @@
+<?php 
+$details_url = isset($details_url_target) ? $details_url_target : site_url("spareparts/katalog/katalog_part_list/get_part_details");
+$item_label = isset($item_label) ? strtoupper($item_label) : 'PART';
+$item_label_lower = strtolower($item_label);
+$item_code_prefix = ($item_label === 'LUBRICANT') ? 'CCN' : 'Part No';
+?>
 <!-- OFF-CANVAS SIDE DRAWER FOR POPULASI UNIT -->
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
 <div class="side-drawer" id="sideDrawer">
     <div class="drawer-header">
         <button class="btn-close-drawer" id="btnCloseDrawer"><i class="fa-solid fa-xmark"></i></button>
-        <div class="drawer-sub-title">POTENSI JUAL PART</div>
+        <div class="drawer-sub-title">POTENSI JUAL <?php echo $item_label; ?></div>
         <div class="drawer-part-code" id="drawerPartCode">-</div>
         <div class="drawer-part-desc" id="drawerPartDesc">-</div>
         
@@ -23,17 +29,17 @@
         <!-- PELUANG AKTIF SECTION -->
         <div class="drawer-section" style="margin-bottom: 1.5rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem;">
             <div class="drawer-section-title" id="drawerPeluangTitle" style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
-                PELUANG AKTIF — UNIT YANG MEMANG BUTUH PART INI DI JADWAL PM BERIKUTNYA (0)
+                PELUANG AKTIF — UNIT YANG MEMANG BUTUH <?php echo $item_label; ?> INI DI JADWAL PM BERIKUTNYA (0)
             </div>
             <div style="font-size: 0.8rem; color: #64748B; line-height: 1.6; padding: 0.5rem 0;">
-                Belum ada unit yang jadwal PM berikutnya jatuh pada part ini (bisa jadi masih di checkpoint lain dalam siklus 16.000 jam).
+                Belum ada unit yang jadwal PM berikutnya jatuh pada <?php echo $item_label_lower; ?> ini (bisa jadi masih di checkpoint lain dalam siklus 16.000 jam).
             </div>
         </div>
 
         <!-- POTENSI LAIN SECTION -->
         <div class="drawer-section">      
             <div class="drawer-section-title" id="drawerPotensiTitle" style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
-                POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)
+                POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK <?php echo $item_label; ?> INI (0)
             </div>
             <div class="unit-card-list" id="drawerUnitList">
                 <!-- Unit Cards will be injected via JS -->
@@ -74,10 +80,13 @@
 </div>
 
 <script>
+    const itemLabel = "<?php echo $item_label; ?>";
+    const itemCodePrefix = "<?php echo $item_code_prefix; ?>";
+
     // Open & Close Side Drawer Logic
     const openDrawer = (partData) => {       
-        const partCd = partData.partCd || partData.inventoryCD || '-';
-        const partDesc = partData.partDesc || partData.inventoryName || '-';
+        const partCd = partData.partCd || partData.inventoryCD || partData.ccn || '-';
+        const partDesc = partData.partDesc || partData.inventoryName || partData.description || '-';
         const qtyOnHand = partData.qtyOnHand || 0;
         const frame = partData.frame || '-';
         const frameId = partData.frameId;
@@ -92,9 +101,9 @@
         `);
 
         $.ajax({
-            url: '<?php echo site_url("spareparts/katalog/katalog_part_list/get_part_details"); ?>',
+            url: '<?php echo $details_url; ?>',
             type: 'POST',
-            data: { partCd: partCd },
+            data: { partCd: partCd, ccn: partCd },
             dataType: 'json',
             success: function(res) {
                 let uniqueFrames = [];
@@ -135,7 +144,7 @@
         $('#sideDrawer').addClass('show');
 
         if (!partCd || partCd === '-') {
-            $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
+            $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK ${itemLabel} INI (0)`);
             $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">There are no registered customers for this unit.</div>');
             return;
         }
@@ -144,13 +153,13 @@
         $.ajax({
             url: '<?php echo $url_target; ?>',
             type: 'POST',
-            data: { partCd },
+            data: { partCd: partCd, ccn: partCd },
             dataType: 'json',
             success: function(res) {
                 const listData = Array.isArray(res) ? res : (res && res.data ? res.data : []);
                 
                 if (listData.length > 0) {
-                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (${listData.length})`);
+                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK ${itemLabel} INI (${listData.length})`);
                     
                     let html = '';
                     listData.forEach(item => {
@@ -182,7 +191,7 @@
                     
                     $('#drawerUnitList').html(html);
                 } else {
-                    $('#drawerPotensiTitle').text('POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK PART INI (0)');
+                    $('#drawerPotensiTitle').text(`POTENSI LAIN — UNIT DENGAN MODEL COCOK, BELUM JATUH TEMPO UNTUK ${itemLabel} INI (0)`);
                     $('#drawerUnitList').html('<div style="color: #64748B; padding: 1.5rem; text-align: center; font-size: 0.85rem;">There are no registered customers for this unit.</div>');
                 }
             },
@@ -216,7 +225,7 @@
             const encodedModels = $(this).attr('data-models');
             const models = JSON.parse(decodeURIComponent(encodedModels));
 
-            $('#drawerModalPartCodeSub').text('Part No: ' + partCd);
+            $('#drawerModalPartCodeSub').text(`${itemCodePrefix}: ${partCd}`);
             
             let rowsHtml = '';
             models.forEach(m => {

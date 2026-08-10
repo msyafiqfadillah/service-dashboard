@@ -54,15 +54,32 @@ class Inventory_model extends CI_Model {
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 
-    private function _query_populasi_unit($inventoryCd = null, $branch = null) {
+    private function _query_populasi_unit($partCd = null, $lubricantCd = null, $branch = null) {
         $where = "";
-        $inner_where = "";
         
-        if (isset($inventoryCd)) {
-            $inner_where .= " and cast(fpf.PartInventoryCD as varchar(max)) = '$inventoryCd'";
+        if (isset($lubricantCd) && !empty($lubricantCd)) {
+            $subquery = "
+                select fif.inventoryId
+                from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
+                inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+                inner join AcumaticaProduction_NEW.dbo.fmLubricantFrame as flf on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
+                where cast(flf.ccn as varchar(max)) = '$lubricantCd'
+            ";
+        } else {
+            $inner_where = "";
+            if (isset($partCd) && !empty($partCd)) {
+                $inner_where .= " and cast(fpf.PartInventoryCD as varchar(max)) = '$partCd'"; 
+            }
+            $subquery = "
+                select fif.inventoryId
+                from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
+                inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
+                inner join AcumaticaProduction_NEW.dbo.fmPartFrame as fpf on ff.id = fpf.frameId
+                where 1=1 $inner_where
+            ";
         }
 
-        if (isset($branch)) {
+        if (isset($branch) && !empty($branch)) {
             $where .= " and BranchCD = '$branch'";
         }
 
@@ -83,26 +100,29 @@ class Inventory_model extends CI_Model {
             left join FMMService.dbo.InventoryClass c ON a.InventoryClassID = c.InventoryClassID
             left join FMMService.dbo.MasterUnitHM d ON a.MasterUnitID = d.MasterUnitID
             where RowStatus = 1 and IsActive = 1 and br.CompanyID = 2 and a.InventoryID in (
-                select fif.inventoryId
-                from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
-                inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
-                inner join AcumaticaProduction_NEW.dbo.fmPartFrame as fpf on ff.id = fpf.frameId
-                where 1=1 $inner_where
+                $subquery
             ) and nullif(rtrim(ltrim(a.SerialNumber)), '') is not null $where
         ";
 
         return $base_sql;
     }
 
-    public function get_populasi_unit($inventoryCd) {
-        $query = $this->_query_populasi_unit($inventoryCd);
+    public function get_populasi_unit($partCd) {
+        $query = $this->_query_populasi_unit($partCd);
         $result = $this->db->query($query)->result();
 
         return $result;
     }
 
     public function get_populasi_unit_by_branch($branch) {
-        $query = $this->_query_populasi_unit(null, $branch);
+        $query = $this->_query_populasi_unit(null, null, $branch);
+        $result = $this->db->query($query)->result_array();
+
+        return $result;
+    }
+
+    public function get_populasi_unit_by_lubricant($lubricantCd) {
+        $query = $this->_query_populasi_unit(null, $lubricantCd);
         $result = $this->db->query($query)->result_array();
 
         return $result;

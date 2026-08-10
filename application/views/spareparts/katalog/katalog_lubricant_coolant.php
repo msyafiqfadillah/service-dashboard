@@ -10,14 +10,15 @@
                 <th style="width: 110px;">CCN</th>
                 <th>Product</th>
                 <th style="width: 260px;">Frame</th>
-                <th style="width: 220px;">Category</th>
-                <th style="width: 140px;">Packaging</th>
+                <th style="width: 180px;">Category</th>
+                <th style="width: 120px;">Packaging</th>
                 <th style="text-align: center; width: 120px;">Warehouse Stock</th>
+                <th style="text-align: center; width: 100px;">Sales Potential</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                     <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
@@ -25,6 +26,12 @@
         </tbody>
     </table>
 </div>
+
+<?php $this->load->view('spareparts/component_side_drawer', array(
+    "url_target" => $data["populasi_unit_url"], 
+    "details_url_target" => $data["get_lubricant_details_url"],
+    "item_label" => "LUBRICANT"
+)); ?>
 
 <!-- MODAL FOR FRAME DETAILS -->
 <div class="modal fade" id="partDetailsModal" tabindex="-1" role="dialog" aria-labelledby="partDetailsModalLabel" aria-hidden="true">
@@ -81,7 +88,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
@@ -181,6 +188,21 @@
                         let badgeClass = stockVal > 10 ? 'green' : 'yellow';
 
                         return `<span class="badge-stock ${badgeClass}">${stockVal.toLocaleString('id-ID')}</span>`;
+                    }
+                },
+                { 
+                    data: null,
+                    className: "text-center",
+                    orderable: false,
+                    render: function(data, type, row) {
+                        const rowDataAttr = encodeURIComponent(JSON.stringify(row));
+                        return `
+                            <div class="action-btns" style="justify-content: center;">
+                                <button class="btn-action-icon btn-view-populasi" data-row="${rowDataAttr}" title="Lihat Populasi Unit Customer">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        `;
                     }
                 }
             ],
