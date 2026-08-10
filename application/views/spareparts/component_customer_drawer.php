@@ -96,6 +96,7 @@
             </tr>
         `);
 
+        $('body').addClass('drawer-open');
         $('#custDrawerBackdrop').addClass('show');
         $('#custSideDrawer').addClass('show');
 
@@ -167,6 +168,9 @@
         $('#btnCloseCustDrawer, #custDrawerBackdrop').on('click', function() {
             $('#custDrawerBackdrop').removeClass('show');
             $('#custSideDrawer').removeClass('show');
+            if ($('.side-drawer.show').length === 0) {
+                $('body').removeClass('drawer-open');
+            }
         });
     });
 </script>

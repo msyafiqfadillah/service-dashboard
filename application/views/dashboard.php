@@ -324,6 +324,7 @@
             </tr>
         `);
 
+        $('body').addClass('drawer-open');
         $('#branchDrawerBackdrop').addClass('show');
         $('#branchSideDrawer').addClass('show');
 
@@ -376,6 +377,9 @@
     const closeBranchDrawer = () => {
         $('#branchDrawerBackdrop').removeClass('show');
         $('#branchSideDrawer').removeClass('show');
+        if ($('.side-drawer.show').length === 0) {
+            $('body').removeClass('drawer-open');
+        }
     };
 
     $(document).ready(function () {

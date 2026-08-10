@@ -860,6 +860,10 @@ table.dataTable tbody tr:hover td {
     transition: opacity 0.3s ease;
 }
 
+body.drawer-open {
+    overflow: hidden !important;
+}
+
 .drawer-backdrop.show {
     display: block;
     opacity: 1;
@@ -878,6 +882,7 @@ table.dataTable tbody tr:hover td {
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -890,6 +895,7 @@ table.dataTable tbody tr:hover td {
     border-bottom: 1px solid #E2E8F0;
     position: relative;
     background: #FFFFFF;
+    flex-shrink: 0;
 }
 
 .drawer-header .btn-close-drawer {
@@ -961,8 +967,10 @@ table.dataTable tbody tr:hover td {
 
 .drawer-body {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    padding: 1.25rem 1.5rem;
+    overflow-x: hidden;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
 }
 
 .drawer-body::-webkit-scrollbar {

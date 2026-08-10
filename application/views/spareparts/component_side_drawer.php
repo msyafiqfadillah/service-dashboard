@@ -130,6 +130,7 @@
             </div>
         `);
 
+        $('body').addClass('drawer-open');
         $('#drawerBackdrop').addClass('show');
         $('#sideDrawer').addClass('show');
 
@@ -194,6 +195,9 @@
     const closeDrawer = () => {
         $('#drawerBackdrop').removeClass('show');
         $('#sideDrawer').removeClass('show');
+        if ($('.side-drawer.show').length === 0) {
+            $('body').removeClass('drawer-open');
+        }
     };
 
     $(document).ready(function () {
