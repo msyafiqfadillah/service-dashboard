@@ -13,7 +13,7 @@
 <div class="content-area">
     <div class="dashboard-card-container">
         <div class="dashboard-section-title-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
-            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Unit Distribution by Branch</h2>
+            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Unit Distribution by RSO</h2>
             <span style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-hover, #F1F5F9); color: var(--text-secondary, #64748B); padding: 0.15rem 0.4rem; border-radius: 4px;">Click on a branch for details</span>
         </div>
 
