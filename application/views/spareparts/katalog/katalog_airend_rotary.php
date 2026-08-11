@@ -74,10 +74,9 @@
 
     .ccn-stock-text {
         font-size: 0.73rem;
-        color: var(--text-secondary, #64748B);
         opacity: 0.6;
         margin-top: 2px;
-        font-weight: 500;
+        font-weight: bold;
     }
 </style>
 
