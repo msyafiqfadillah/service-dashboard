@@ -484,6 +484,53 @@ class Inventory_model extends CI_Model {
             left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
             where cast(flf.ccn as varchar(max)) = ?
         ";
+
         return $this->db->query($sql, array($ccn))->result_array();
+    }
+
+    private function _query_centac() {
+        $sql = "
+            select 
+                cast(fcf.customerName as varchar(max)) as customerName, 
+                cast(fcf.unitInventoryCd as varchar(max)) as unitInventoryCd, 
+                cast(fcf.unitSerialNumber as varchar(max)) as unitSerialNumber, 
+                cast(fcf.partInventoryCd as varchar(max)) as partInventoryCd, 
+                cast(fcf.partDescription as varchar(max)) as partDescription, 
+                cast(fcf.partQty as varchar(max)) as partQty, 
+                cast(fcf.partUom as varchar(max)) as partUom, 
+                cast(fcf.reference as varchar(max)) as reference, 
+                cast(fcf.application as varchar(max)) as application, 
+                isnull(tib.QtyOnHand, 0) as qtyOnHand
+            from AcumaticaProduction_NEW.dbo.fmCentrifugalFrame as fcf
+            left join (
+                select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
+                from db_fmm.dbo.tb_InventoryBalance
+                where CompanyID = 2
+                    and QtyOnHand > 0
+                    and FinPeriodID = (
+                        select max(FinPeriodID)
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                    )
+                group by InventoryID, InventoryCD, InventoryName
+            ) as tib on cast(fcf.partInventoryCd as varchar(max)) = tib.InventoryCD
+        ";
+
+        return $sql;
+    }
+
+    public function get_centac() {
+        $base_sql = $this->_query_centac();
+        $searchable_columns = array(
+            'customerName', 'unitInventoryCd', 'unitSerialNumber', 
+            'partInventoryCd', 'partDescription', 'reference', 'application'
+        );
+        $column_order = array(
+            'customerName', 'partInventoryCd', 'partDescription', 
+            'partQty', 'reference', 'application', 'qtyOnHand'
+        );
+        $default_sort = "ORDER BY customerName ASC";
+
+        return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
     }
 }

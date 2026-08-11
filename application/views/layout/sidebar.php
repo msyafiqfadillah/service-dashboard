@@ -27,7 +27,8 @@
                 $is_katalog_active = isset($active_menu) && in_array($active_menu, [
                     'spareparts/katalog/katalog_part_list', 
                     'spareparts/katalog/katalog_airend_rotary',
-                    'spareparts/katalog/katalog_lubricant_coolant'
+                    'spareparts/katalog/katalog_lubricant_coolant',
+                    'spareparts/katalog/katalog_centac'
                 ]);
             ?>
             <li class="has-submenu <?= $is_katalog_active ? 'open' : '' ?>">
@@ -55,6 +56,12 @@
                             Lubricant & Coolant Catalog
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= site_url('spareparts/katalog/katalog_centac') ?>" class="submenu-item <?= (isset($active_menu) && $active_menu == 'spareparts/katalog/katalog_centac') ? 'active' : '' ?>">
+                            <span class="submenu-icon"><i class="fa-solid fa-layer-group"></i></span>
+                            Centac Catalog
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li>
@@ -75,12 +82,12 @@
                     Cross-Reference
                 </a>
             </li>
-            <li>
+            <!-- <li>
                 <a href="<?= site_url('dashboard/jadwalpm') ?>" class="menu-item <?= (isset($active_menu) && $active_menu == 'jadwalpm') ? 'active' : '' ?>">
                     <span class="menu-icon"><i class="fa-regular fa-calendar-days"></i></span>
                     Jadwal PM (CCN)
                 </a>
-            </li>
+            </li> -->
         </ul>
     </div>
 
