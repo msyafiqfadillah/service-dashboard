@@ -13,6 +13,7 @@
                 <th>Frame</th>
                 <th>Aging</th>
                 <th style="text-align: center; width: 120px;">Qty On Hand</th>
+                <th style="text-align: center; width: 120px;">Qty Available</th>
                 <th>Pricelist</th>
                 <th style="text-align: center; width: 80px;">Sales Potential</th>
                 <th style="text-align: center; width: 80px;">List Customer</th>
@@ -20,7 +21,7 @@
         </thead>
         <tbody>
             <tr>
-                <td colspan="5" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                     <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
@@ -66,7 +67,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
@@ -124,6 +125,19 @@
                         else if (data <= 10) badgeClass = 'yellow';
                         
                         return `<span class="badge-stock ${badgeClass}">${data}</span>`;
+                    }
+                },
+                {
+                    data: "qtyAvailable",
+                    className: "text-center",
+                    render: function(data, type, row, meta) {
+                        let val = parseFloat(data) || 0;
+                        let badgeClass = 'green';
+
+                        if (val === 0) badgeClass = 'red';
+                        else if (val <= 10) badgeClass = 'yellow';
+                        
+                        return `<span class="badge-stock ${badgeClass}">${Math.round(val)}</span>`;
                     }
                 },
                 { 

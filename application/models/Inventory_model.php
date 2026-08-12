@@ -138,6 +138,7 @@ class Inventory_model extends CI_Model {
                 max(v.frameId) as frameId,
                 max(right(iic.descr, 4)) as itemType, 
                 max(v.qtyOnHand) as qtyOnHand, 
+                coalesce(max(avail.qtyAvailable), 0) as qtyAvailable,
                 max(v.aging) as aging, 
                 max(c.SalesPrice) as salesPrice
             from (
@@ -187,6 +188,22 @@ class Inventory_model extends CI_Model {
                 and v.CompanyID = c.CompanyID
             inner join INItemClass as iic on v.itemClassId = iic.itemClassId 
                 and v.CompanyID = iic.CompanyID
+            left join (
+                select
+                    a.SiteID,
+                    a.CompanyID,
+                    a.InventoryID,
+                    b.InventoryCD,
+                    sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                join AcumaticaProduction_NEW.dbo.InventoryItem as b on b.InventoryID = a.InventoryID 
+                    and a.CompanyID = b.CompanyID
+                left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                    and c.SiteID = a.SiteID 
+                    and a.CompanyID = c.CompanyID
+                where a.CompanyID = 2 and a.QtyAvail > 0
+                group by a.SiteID, a.CompanyID,a.InventoryID,b.InventoryCD
+            ) as avail on avail.InventoryID = v.InventoryID
             group by v.inventoryCD
         ";
 
@@ -196,8 +213,8 @@ class Inventory_model extends CI_Model {
     public function get_warehouse_stock() {
         $base_sql = $this->_query_warehouse_stock();
 
-        $searchable_columns = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'salesPrice');
-        $column_order = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'salesPrice');
+        $searchable_columns = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'qtyAvailable', 'salesPrice');
+        $column_order = array('inventoryCD', 'inventoryName', 'itemType', 'frame', 'aging', 'qtyOnHand', 'qtyAvailable', 'salesPrice');
         $default_sort = "ORDER BY inventoryCD ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
