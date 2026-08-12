@@ -291,7 +291,7 @@ class Inventory_model extends CI_Model {
         return $result;
     }
 
-    private function _query_customers_by_part() {
+    private function _query_customers_by_part($part) {
         $base_sql = "
             select distinct 
                 b.CustomerName, 
@@ -324,16 +324,15 @@ class Inventory_model extends CI_Model {
                 select fif.inventoryId
                 from AcumaticaProduction_NEW.dbo.fmInventoryFrame as fif
                 inner join AcumaticaProduction_NEW.dbo.fmFrame as ff on fif.frameId = ff.id
-            ) and (cast(fpf.partInventoryCd as varchar(max)) like ? or cast(fpf.descr as varchar(max)) like ?)
+            ) and (cast(fpf.partInventoryCd as varchar(max)) like '%$part%' or cast(fpf.descr as varchar(max)) like '%$part%')
         ";
 
         return $base_sql;
     }
 
     public function get_customers_by_part($part) {
-        $base_sql = $this->_query_customers_by_part();
-        $term = '%' . trim($part) . '%';
-        $result = $this->db->query($base_sql, array($term, $term))->result_array();
+        $base_sql = $this->_query_customers_by_part($part);
+        $result = $this->db->query($base_sql)->result_array();
 
         return $result;
     }
