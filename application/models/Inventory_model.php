@@ -119,6 +119,33 @@ class Inventory_model extends CI_Model {
         return $base_sql;
     }
 
+    private function _query_populasi_unit_all($branch = null) {
+        $where = "1=1";
+
+        if (isset($branch)) {
+            $where .= "and br.BranchCD = '$branch'";
+        }
+
+        $query = "
+            select b.CustomerName, b.CustomerCode, 
+                br.BranchCD, a.InventoryClassID, ii.InventoryCD, 
+                a.SerialNumber
+            from FMMService.dbo.MasterUnit a
+            inner join (
+                select max(MasterUnitID) as MasterUnitID, SerialNumber
+                from FMMService.dbo.MasterUnit ia
+                group by SerialNumber
+            ) as a2 on a.MasterUnitID = a2.MasterUnitID
+            inner join AcumaticaProduction_NEW.dbo.Branch as br on a.BranchID = br.BranchID
+            left join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
+                and br.CompanyID = ii.CompanyID
+            left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
+            where $where
+        ";
+
+        return $query;
+    }
+
     public function get_populasi_unit($partCd) {
         $query = $this->_query_populasi_unit($partCd);
         $result = $this->db->query($query)->result();
@@ -127,7 +154,14 @@ class Inventory_model extends CI_Model {
     }
 
     public function get_populasi_unit_by_branch($branch) {
-        $query = $this->_query_populasi_unit(null, null, $branch);
+        $base_query = $this->_query_populasi_unit_all($branch);
+        $query = "
+            select *
+            from (
+                $base_query
+            ) as x
+            order by CustomerName, InventoryCD, SerialNumber
+        ";
         $result = $this->db->query($query)->result_array();
 
         return $result;
@@ -319,7 +353,7 @@ class Inventory_model extends CI_Model {
     }
 
     public function get_unit_distribution() {
-        $base_sql = $this->_query_populasi_unit();
+        $base_sql = $this->_query_populasi_unit_all();
         $query = "
             select ltrim(rtrim(BranchCD)) as BranchCD, count(distinct SerialNumber) as CountSerialNumber, 
                 count(distinct CustomerCode) as CountCustomerCode
