@@ -17,6 +17,7 @@ class Inventory_model extends CI_Model {
                 max(cast(fpf.descr as varchar(max))) as partDesc, 
                 max(cast(fpf.application as varchar(max))) as application,
                 max(x.qtyOnHand) as qtyOnHand, 
+                coalesce(max(avail.qtyAvailable), 0) as qtyAvailable,
                 max(ii.baseUnit) as baseUnit,
                 count(distinct ff.id) as frameCount,
                 count(distinct cast(fpf.assemblySection as varchar(max))) as assemblyCount,
@@ -39,6 +40,17 @@ class Inventory_model extends CI_Model {
                     ) 
                 group by InventoryID, InventoryCD, InventoryName
             ) as x on fpf.partInventoryId = x.InventoryID
+            left join (
+                select
+                    a.InventoryID,
+                    sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                    and c.SiteID = a.SiteID 
+                    and a.CompanyID = c.CompanyID
+                where a.CompanyID = 2 and a.QtyAvail > 0
+                group by a.InventoryID
+            ) as avail on avail.InventoryID = ii.InventoryID
             group by cast(fpf.partInventoryCd as varchar(100))
         ";
 
@@ -47,8 +59,8 @@ class Inventory_model extends CI_Model {
 
     public function get_part_list() {
         $base_sql = $this->_query_part_list();
-        $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand');
-        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application', 'qtyOnHand');
+        $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand', 'qtyAvailable');
+        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application', 'qtyOnHand', 'qtyAvailable');
         $default_sort = "order by partCd ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
@@ -224,7 +236,7 @@ class Inventory_model extends CI_Model {
         $base_sql = "
             select rtrim(ltrim(inventoryCD)) as inventoryCD, inventoryName, 
                 fourYearAgoSold, threeYearAgoSold, twoYearAgoSold, oneYearAgoSold, currentSold, 
-                (fourYearAgoSold + threeYearAgoSold + twoYearAgoSold + oneYearAgoSold + currentSold) as totalSold, qtyOnHand 
+                (fourYearAgoSold + threeYearAgoSold + twoYearAgoSold + oneYearAgoSold + currentSold) as totalSold, qtyOnHand, qtyAvailable 
                 --, (case when (twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0 > 0 
                 --    then (qtyOnHand / ((twoYearAgoSold + oneYearAgoSold + currentSold) / 3.0)) else 0 end) as rasioYear
             from (
@@ -234,7 +246,8 @@ class Inventory_model extends CI_Model {
                     sum((case when year(trandate) = year(getdate()) - 2 then tbs.qty else 0 end)) as twoYearAgoSold,
                     sum((case when year(trandate) = year(getdate()) - 1 then tbs.qty else 0 end)) as oneYearAgoSold,
                     sum((case when year(trandate) = year(getdate()) then tbs.qty else 0 end)) as currentSold,
-                    tib.qtyOnHand
+                    tib.qtyOnHand,
+                    coalesce(max(avail.qtyAvailable), 0) as qtyAvailable
                 from db_fmm.dbo.tb_stagging as tbs
                 inner join (
                     select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
@@ -247,6 +260,17 @@ class Inventory_model extends CI_Model {
                         )
                     group by InventoryID, InventoryCD, InventoryName
                 ) as tib on tbs.InventoryID = tib.InventoryID
+                left join (
+                    select
+                        a.InventoryID,
+                        sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                    from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                    left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                        and c.SiteID = a.SiteID 
+                        and a.CompanyID = c.CompanyID
+                    where a.CompanyID = 2 and a.QtyAvail > 0
+                    group by a.InventoryID
+                ) as avail on avail.InventoryID = tib.InventoryID
                 where exists (
                     select 1
                     from AcumaticaProduction_NEW.dbo.fmPartFrame as fpf

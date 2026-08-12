@@ -7,7 +7,7 @@
         <div class="drawer-part-code" id="custDrawerPartCode">-</div>
         <div class="drawer-part-desc" id="custDrawerPartDesc">-</div>
         
-        <div class="drawer-stats-row">
+        <div class="drawer-stats-row" style="gap: 1.25rem; flex-wrap: wrap;">
             <div class="drawer-stat-item">
                 <span class="lbl">TOTAL TERJUAL</span>
                 <span class="val" id="custDrawerTotalSold">-</span>
@@ -15,6 +15,10 @@
             <div class="drawer-stat-item">
                 <span class="lbl">STOK SAAT INI</span>
                 <span class="val" id="custDrawerStok">-</span>
+            </div>
+            <div class="drawer-stat-item">
+                <span class="lbl">STOK TERSEDIA</span>
+                <span class="val" id="custDrawerStokAvailable">-</span>
             </div>
             <div class="drawer-stat-item">
                 <span class="lbl">JUMLAH CUSTOMER</span>
@@ -79,13 +83,16 @@
 
 <script>
     // Open Customer Side Drawer
-    const openCustDrawer = (inventoryCD, inventoryName, totalSold, qtyOnHand) => {
+    const openCustDrawer = (inventoryCD, inventoryName, totalSold, qtyOnHand, qtyAvailable) => {
         $('#custDrawerPartCode').text(inventoryCD);
         $('#custDrawerPartDesc').text(inventoryName);
         $('#custDrawerTotalSold').text(totalSold ? parseInt(totalSold).toLocaleString('id-ID') : 0);
         
         let stockVal = Math.round(parseFloat(qtyOnHand));
         $('#custDrawerStok').text(isNaN(stockVal) ? '0' : stockVal.toLocaleString('id-ID'));
+
+        let availVal = qtyAvailable !== undefined ? Math.round(parseFloat(qtyAvailable)) : stockVal;
+        $('#custDrawerStokAvailable').text(isNaN(availVal) ? '0' : availVal.toLocaleString('id-ID'));
 
         $('#custDrawerList').html(`
             <tr>

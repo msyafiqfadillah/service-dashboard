@@ -225,7 +225,7 @@
             const rawData = $(this).attr('data-row');
             if (rawData) {
                 const rowData = JSON.parse(decodeURIComponent(rawData));
-                openCustDrawer(rowData.inventoryCD, rowData.inventoryName, rowData.totalSold, rowData.qtyOnHand);
+                openCustDrawer(rowData.inventoryCD, rowData.inventoryName, rowData.totalSold, rowData.qtyOnHand, rowData.qtyAvailable);
             }
         });
     });

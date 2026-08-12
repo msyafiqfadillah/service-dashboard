@@ -13,10 +13,14 @@ $item_code_prefix = ($item_label === 'LUBRICANT') ? 'CCN' : 'Part No';
         <div class="drawer-part-code" id="drawerPartCode">-</div>
         <div class="drawer-part-desc" id="drawerPartDesc">-</div>
         
-        <div class="drawer-stats-row">
+        <div class="drawer-stats-row" style="gap: 1.5rem; flex-wrap: wrap;">
             <div class="drawer-stat-item">
                 <span class="lbl">STOK GUDANG</span>
                 <span class="val" id="drawerStok">-</span>
+            </div>
+            <div class="drawer-stat-item">
+                <span class="lbl">STOK TERSEDIA</span>
+                <span class="val" id="drawerStokAvailable">-</span>
             </div>
             <div class="drawer-stat-item">
                 <span class="lbl">MODEL COCOK</span>
@@ -87,7 +91,8 @@ $item_code_prefix = ($item_label === 'LUBRICANT') ? 'CCN' : 'Part No';
     const openDrawer = (partData) => {       
         const partCd = partData.partCd || partData.inventoryCD || partData.ccn || '-';
         const partDesc = partData.partDesc || partData.inventoryName || partData.description || '-';
-        const qtyOnHand = partData.qtyOnHand || 0;
+        const qtyOnHand = partData.qtyOnHand !== undefined ? partData.qtyOnHand : 0;
+        const qtyAvailable = partData.qtyAvailable !== undefined ? partData.qtyAvailable : qtyOnHand;
         const frame = partData.frame || '-';
         const frameId = partData.frameId;
         const baseUnit = partData.baseUnit ? partData.baseUnit.toLowerCase() : 'ea';
@@ -95,6 +100,7 @@ $item_code_prefix = ($item_label === 'LUBRICANT') ? 'CCN' : 'Part No';
         $('#drawerPartCode').text(partCd);
         $('#drawerPartDesc').text(partDesc);
         $('#drawerStok').text(qtyOnHand + ` ${baseUnit}`);
+        $('#drawerStokAvailable').text(qtyAvailable + ` ${baseUnit}`);
 
         $('#drawerModel').html(`
             <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue, #3B82F6); font-size: 0.85rem;"></i>
