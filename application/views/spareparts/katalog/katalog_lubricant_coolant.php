@@ -9,16 +9,17 @@
             <tr>
                 <th style="width: 110px;">CCN</th>
                 <th>Product</th>
-                <th style="width: 260px;">Frame</th>
-                <th style="width: 180px;">Category</th>
-                <th style="width: 120px;">Packaging</th>
-                <th style="text-align: center; width: 120px;">Warehouse Stock</th>
+                <th style="width: 220px;">Frame</th>
+                <th style="width: 160px;">Category</th>
+                <th style="width: 110px;">Packaging</th>
+                <th style="text-align: center; width: 110px;">Warehouse Stock</th>
+                <th style="text-align: center; width: 110px;">Stock Available</th>
                 <th style="text-align: center; width: 100px;">Sales Potential</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                     <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
@@ -88,7 +89,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
@@ -177,6 +178,21 @@
                 },
                 { 
                     data: "qtyOnHand",
+                    className: "text-center",
+                    render: function(data) {
+                        let qty = parseFloat(data) || 0;
+                        if (qty <= 0) {
+                            return `<span class="badge-stock grey">Empty</span>`;
+                        }
+                        
+                        let stockVal = Math.round(qty);
+                        let badgeClass = stockVal > 10 ? 'green' : 'yellow';
+
+                        return `<span class="badge-stock ${badgeClass}">${stockVal.toLocaleString('id-ID')}</span>`;
+                    }
+                },
+                { 
+                    data: "qtyAvailable",
                     className: "text-center",
                     render: function(data) {
                         let qty = parseFloat(data) || 0;

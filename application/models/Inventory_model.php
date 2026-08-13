@@ -522,7 +522,8 @@ class Inventory_model extends CI_Model {
                 max(cast(flf.isovg as varchar(max))) as isovg,
                 count(distinct cast(ff.frame as varchar(max))) as frameCount,
                 max(cast(ff.frame as varchar(max))) as frame,
-                isnull(max(tib.qtyOnHand), 0) as qtyOnHand
+                isnull(max(tib.qtyOnHand), 0) as qtyOnHand,
+                coalesce(max(avail.qtyAvailable), 0) as qtyAvailable
             from fmLubricantFrame as flf
             inner join (
                 select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
@@ -536,6 +537,17 @@ class Inventory_model extends CI_Model {
                     )
                 group by InventoryID, InventoryCD, InventoryName
             ) as tib on cast(flf.ccn as varchar(max)) = tib.InventoryCD
+            left join (
+                select
+                    a.InventoryID,
+                    sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                    and c.SiteID = a.SiteID 
+                    and a.CompanyID = c.CompanyID
+                where a.CompanyID = 2 and a.QtyAvail > 0
+                group by a.InventoryID
+            ) as avail on avail.InventoryID = tib.InventoryID
             left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
             group by cast(flf.ccn as varchar(max))
         ";
@@ -546,10 +558,10 @@ class Inventory_model extends CI_Model {
     public function get_lubricant_coolant() {
         $base_sql = $this->_query_lubricant_coolant();
         $searchable_columns = array(
-            'ccn', 'description', 'category', 'frame', 'containerSize', 'containerType', 'applicationUsed'
+            'ccn', 'description', 'category', 'frame', 'containerSize', 'containerType', 'applicationUsed', 'qtyOnHand', 'qtyAvailable'
         );
         $column_order = array(
-            'ccn', 'description', 'frame', 'category', 'containerSize', 'qtyOnHand'
+            'ccn', 'description', 'frame', 'category', 'containerSize', 'qtyOnHand', 'qtyAvailable'
         );
         $default_sort = "ORDER BY ccn ASC";
 
