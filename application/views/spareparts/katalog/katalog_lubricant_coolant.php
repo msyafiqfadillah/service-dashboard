@@ -7,11 +7,11 @@
     <table id="KatalogLubricantList">
         <thead>
             <tr>
-                <th style="width: 110px;">CCN</th>
-                <th>Product</th>
-                <th style="width: 220px;">Frame</th>
-                <th style="width: 160px;">Category</th>
-                <th style="width: 110px;">Packaging</th>
+                <th>CCN</th>
+                <th style="width: 220px;">Product</th>
+                <th style="width: 110px;">Frame</th>
+                <th style="width: 110px;">Category</th>
+                <th style="width: 80px;">Packaging</th>
                 <th style="text-align: center; width: 110px;">Warehouse Stock</th>
                 <th style="text-align: center; width: 110px;">Stock Available</th>
                 <th style="text-align: center; width: 100px;">Sales Potential</th>
@@ -152,10 +152,10 @@
                         let frameCount = parseInt(row.frameCount) || 0;
                         let formattedData = data ? data.split(',').join(', ') : '';
                         if (frameCount > 1) {
-                            return `<span class="cell-ellipsis btn-view-lubricant-frames" style="max-width: 240px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-ccn="${row.ccn}" title="Klik untuk lihat semua frame">${formattedData}...</span>`;
+                            return `<span class="cell-ellipsis btn-view-lubricant-frames" style="max-width: 180px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-ccn="${row.ccn}" title="Klik untuk lihat semua frame">${formattedData}...</span>`;
                         }
                         if (frameCount === 1 && data) {
-                            return `<span class="cell-ellipsis" style="max-width: 240px;" title="${data}">${formattedData}</span>`;
+                            return `<span class="cell-ellipsis" style="max-width: 180px;" title="${data}">${formattedData}</span>`;
                         }
                         return `<span style="color: var(--text-muted);">—</span>`;
                     }
