@@ -120,7 +120,7 @@ class Inventory_model extends CI_Model {
     }
 
     private function _query_populasi_unit_all($branch = null) {
-        $where = "1=1";
+        $where = "";
 
         if (isset($branch)) {
             $where .= "and br.BranchCD = '$branch'";
@@ -140,7 +140,12 @@ class Inventory_model extends CI_Model {
             left join AcumaticaProduction_NEW.dbo.InventoryItem as ii on a.InventoryID = ii.InventoryID 
                 and br.CompanyID = ii.CompanyID
             left join FMMService.dbo.Customer b ON a.CustomerID = b.CustomerID
-            where $where
+            where RowStatus = 1 
+                and IsActive = 1 
+                and br.CompanyID = 2 
+                and nullif(rtrim(ltrim(a.SerialNumber)), '') is not null
+                and a.WorkGroupID = 1
+                $where
         ";
 
         return $query;
