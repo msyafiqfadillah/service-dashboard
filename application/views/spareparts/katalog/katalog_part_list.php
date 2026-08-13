@@ -23,9 +23,6 @@
         color: var(--text-secondary, #64748B) !important;
         line-height: 32px !important;
     }
-    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
-        height: 32px !important;
-    }
     .select2-dropdown {
         font-size: 0.83rem !important;
         border-radius: 8px !important;
