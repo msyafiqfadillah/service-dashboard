@@ -18,13 +18,16 @@
                 "data" => array(
                     "katalog_part_list_url" => site_url('spareparts/katalog/katalog_part_list/get_part_list'),
                     "populasi_unit_url" => site_url('spareparts/katalog/katalog_part_list/get_populasi_unit'),
-                    "get_part_details_url" => site_url('spareparts/katalog/katalog_part_list/get_part_details')
+                    "get_part_details_url" => site_url('spareparts/katalog/katalog_part_list/get_part_details'),
+                    "frames" => $this->Inventory_model->get_part_frames()
                 )
             ));
         }
 
         public function get_part_list() {
-            $result = $this->Inventory_model->get_part_list();
+            $frame = $this->input->post('frame');
+            $stockStatus = $this->input->post('stockStatus');
+            $result = $this->Inventory_model->get_part_list($frame, $stockStatus);
 
             echo json_encode($result);
         }

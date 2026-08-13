@@ -6,12 +6,69 @@
         text-overflow: ellipsis;
         vertical-align: middle;
     }
+    .select2-container--bootstrap4 .select2-selection {
+        border-radius: 8px !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+        background-color: var(--bg-input, #F8FAFC) !important;
+        font-size: 0.83rem !important;
+        min-height: 34px !important;
+        height: 34px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        color: var(--text-primary, #0F172A) !important;
+        padding-left: 0.75rem !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+        color: var(--text-secondary, #64748B) !important;
+        line-height: 32px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        height: 32px !important;
+    }
+    .select2-dropdown {
+        font-size: 0.83rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+    }
 </style>
 
 <!-- DATA TABLE CARD -->
 <div class="table-card">
     <div class="table-header">
         <div class="table-title">Parts Catalog</div>
+        <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="filterModel" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Model:</label>
+                <div style="width: 220px;">
+                    <select id="filterModel" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua Model</option>
+                        <?php if (isset($data['frames']) && !empty($data['frames'])): ?>
+                            <?php foreach ($data['frames'] as $f): ?>
+                                <option value="<?= htmlspecialchars($f['frame']) ?>"><?= htmlspecialchars($f['frame']) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="filterStock" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Stock:</label>
+                <div style="width: 160px;">
+                    <select id="filterStock" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua Stok</option>
+                        <option value="ready">Ready Stock (> 0)</option>
+                        <option value="empty">Stok Kosong (= 0)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="customSearchInput" placeholder="Cari Part No, Deskripsi...">
+            </div>
+        </div>
     </div>
 
     <table id="KatalogPartList">
@@ -91,7 +148,11 @@
             .DataTable({                   
             ajax: {
                 url: '<?php echo $data["katalog_part_list_url"]; ?>',
-                type: "POST"
+                type: "POST",
+                data: function(d) {
+                    d.frame = $('#filterModel').val();
+                    d.stockStatus = $('#filterStock').val();
+                }
             },
             serverSide: true,
             processing: true, 
@@ -99,7 +160,7 @@
             bAutoWidth: false,
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
-            dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+            dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
             columns: [
                 { data: "partCd" },
                 { 
@@ -192,7 +253,24 @@
     }
 
     $(document).ready(function () {
+        $('#filterModel').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua Model',
+            allowClear: true
+        });
+
+        $('#filterStock').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua Stok',
+            allowClear: true,
+            minimumResultsForSearch: Infinity
+        });
+
         generate_katalog();
+
+        $('#filterModel, #filterStock').on('change', function() {
+            $('#KatalogPartList').DataTable().ajax.reload();
+        });
 
         // Show Frames Modal Details
         $(document).on('click', '.btn-view-part-frames', function() {

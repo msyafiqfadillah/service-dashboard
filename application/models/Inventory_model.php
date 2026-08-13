@@ -11,12 +11,36 @@ class Inventory_model extends CI_Model {
         $this->load->library('datatable_handler');
     }
 
-    private function _query_part_list() {
+    private function _query_part_list($frame = null, $stockStatus = null) {
+        $where_clauses = array("1=1");
+
+        if (isset($frame) && !empty(trim($frame))) {
+            $escaped_frame = $this->db->escape(trim($frame));
+            $where_clauses[] = "cast(ff.frame as varchar(max)) = $escaped_frame";
+        }
+
+        $where_sql = implode(" AND ", $where_clauses);
+
+        $having_clauses = array();
+        if (isset($stockStatus) && !empty(trim($stockStatus))) {
+            $status = trim($stockStatus);
+            if ($status === 'ready') {
+                $having_clauses[] = "(coalesce(max(x.qtyOnHand), 0) > 0 OR coalesce(max(avail.qtyAvailable), 0) > 0)";
+            } else if ($status === 'empty') {
+                $having_clauses[] = "coalesce(max(x.qtyOnHand), 0) <= 0 AND coalesce(max(avail.qtyAvailable), 0) <= 0";
+            }
+        }
+
+        $having_sql = "";
+        if (!empty($having_clauses)) {
+            $having_sql = " HAVING " . implode(" AND ", $having_clauses);
+        }
+
         $base_sql = "
             select cast(fpf.partInventoryCd as varchar(100)) as partCd, 
                 max(cast(fpf.descr as varchar(max))) as partDesc, 
                 max(cast(fpf.application as varchar(max))) as application,
-                max(x.qtyOnHand) as qtyOnHand, 
+                coalesce(max(x.qtyOnHand), 0) as qtyOnHand, 
                 coalesce(max(avail.qtyAvailable), 0) as qtyAvailable,
                 max(ii.baseUnit) as baseUnit,
                 count(distinct ff.id) as frameCount,
@@ -28,7 +52,7 @@ class Inventory_model extends CI_Model {
             left join fmFrame as ff on fpf.frameId = ff.id
             -- di left join karena ada unit yang belum masuk
             left join fmInventoryFrame as fif on ff.id = fif.frameId
-            inner join (
+            left join (
                 select InventoryID, InventoryCD, InventoryName, sum(QtyOnhand) as qtyOnHand
                 from db_fmm.dbo.tb_InventoryBalance
                 where CompanyID = 2
@@ -51,19 +75,32 @@ class Inventory_model extends CI_Model {
                 where a.CompanyID = 2 and a.QtyAvail > 0
                 group by a.InventoryID
             ) as avail on avail.InventoryID = ii.InventoryID
+            where $where_sql
             group by cast(fpf.partInventoryCd as varchar(100))
+            $having_sql
         ";
 
         return $base_sql;
     }
 
-    public function get_part_list() {
-        $base_sql = $this->_query_part_list();
+    public function get_part_list($frame = null, $stockStatus = null) {
+        $base_sql = $this->_query_part_list($frame, $stockStatus);
         $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand', 'qtyAvailable');
         $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application', 'qtyOnHand', 'qtyAvailable');
         $default_sort = "order by partCd ASC";
 
         return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+    }
+
+    public function get_part_frames() {
+        $sql = "
+            select distinct cast(ff.frame as varchar(max)) as frame
+            from fmFrame as ff
+            inner join fmPartFrame as fpf on ff.id = fpf.frameId
+            where ff.frame is not null and rtrim(ltrim(cast(ff.frame as varchar(max)))) <> ''
+            order by cast(ff.frame as varchar(max)) asc
+        ";
+        return $this->db->query($sql)->result_array();
     }
 
     private function _query_populasi_unit($partCd = null, $lubricantCd = null, $branch = null) {
@@ -181,81 +218,104 @@ class Inventory_model extends CI_Model {
 
     private function _query_warehouse_stock() {
         $base_sql = "
-            select v.inventoryCD, 
-                max(rtrim(ltrim(v.inventoryName))) as inventoryName, 
-                max(v.baseUnit) as baseUnit,
-                count(distinct v.frameId) as frameCount,
-                max(v.frame) as frame,
-                max(v.frameId) as frameId,
-                max(right(iic.descr, 4)) as itemType, 
-                max(v.qtyOnHand) as qtyOnHand, 
-                coalesce(max(avail.qtyAvailable), 0) as qtyAvailable,
-                max(v.aging) as aging, 
-                max(c.SalesPrice) as salesPrice
+            select inventoryCD,
+                inventoryName, 
+                baseUnit, 
+                frameCount,
+                frame,
+                frameId,
+                itemType,
+                sum(qtyOnHand) as qtyOnHand,
+                sum(qtyAvailable) as qtyAvailable,
+                aging,
+                salesPrice
             from (
-                -- unit
-                select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
-                    ii.ItemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
-                    z.qtyOnHand, z.aging, ii.companyID
-                from InventoryItem as ii
-                left join fmInventoryFrame as fif on ii.inventoryID = fif.inventoryID
-                left join fmFrame as ff on fif.frameId = ff.id
-                inner join (
-                    select inventoryID, inventoryCD, InventoryName, 
-                        sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
-                    from db_fmm.dbo.tb_InventoryBalance
-                    where CompanyID = 2
-                        and QtyOnHand > 0
-                        and FinPeriodID = (
-                            select max(FinPeriodID)
-                            from db_fmm.dbo.tb_InventoryBalance
-                        )
-                    group by inventoryID, inventoryCD, InventoryName, LastReceiptDate
-                ) as z on fif.inventoryID = z.inventoryID
-                where ii.CompanyID = 2
-                union
-                -- part
-                select distinct ii.inventoryID, ii.inventoryCD, z.inventoryName, 
-                    ii.itemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
-                    z.qtyOnHand, z.aging, ii.companyID
-                from InventoryItem as ii
-                left join fmPartFrame as fpf on ii.inventoryID = fpf.partInventoryID
-                left join fmFrame as ff on fpf.frameId = ff.id
-                inner join (
-                    select inventoryID, inventoryCD, InventoryName, 
-                        sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
-                    from db_fmm.dbo.tb_InventoryBalance
-                    where CompanyID = 2
-                        and QtyOnHand > 0
-                        and FinPeriodID = (
-                            select max(FinPeriodID)
-                            from db_fmm.dbo.tb_InventoryBalance
-                        )
-                    group by inventoryID, inventoryCD, InventoryName, LastReceiptDate
-                ) as z on fpf.partInventoryID = z.inventoryID
-                where ii.CompanyID = 2
-            ) as v
-            inner join ARSalesPrice as c on v.inventoryID = c.inventoryID 
-                and v.CompanyID = c.CompanyID
-            inner join INItemClass as iic on v.itemClassId = iic.itemClassId 
-                and v.CompanyID = iic.CompanyID
-            left join (
-                select
-                    a.SiteID,
-                    a.CompanyID,
-                    a.InventoryID,
-                    b.InventoryCD,
-                    sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
-                from AcumaticaProduction_NEW.dbo.INSiteStatus as a
-                join AcumaticaProduction_NEW.dbo.InventoryItem as b on b.InventoryID = a.InventoryID 
-                    and a.CompanyID = b.CompanyID
-                left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
-                    and c.SiteID = a.SiteID 
-                    and a.CompanyID = c.CompanyID
-                where a.CompanyID = 2 and a.QtyAvail > 0
-                group by a.SiteID, a.CompanyID,a.InventoryID,b.InventoryCD
-            ) as avail on avail.InventoryID = v.InventoryID
-            group by v.inventoryCD
+                select v.inventoryCD, 
+                    max(rtrim(ltrim(v.inventoryName))) as inventoryName, 
+                    max(v.baseUnit) as baseUnit,
+                    count(distinct v.frameId) as frameCount,
+                    max(v.frame) as frame,
+                    max(v.frameId) as frameId,
+                    max(right(iic.descr, 4)) as itemType, 
+                    coalesce(v.qtyOnHand, 0) as qtyOnHand, 
+                    coalesce(avail.qtyAvailable, 0) as qtyAvailable,
+                    max(v.aging) as aging, 
+                    max(c.SalesPrice) as salesPrice
+                from (
+                    -- unit
+                    select distinct siteId, ii.inventoryID, ii.inventoryCD, z.inventoryName, 
+                        ii.ItemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
+                        z.qtyOnHand, z.aging, ii.companyID
+                    from InventoryItem as ii
+                    left join fmInventoryFrame as fif on ii.inventoryID = fif.inventoryID
+                    left join fmFrame as ff on fif.frameId = ff.id
+                    inner join (
+                        select siteId, inventoryID, inventoryCD, InventoryName, 
+                            sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                            and QtyOnHand > 0
+                            and FinPeriodID = (
+                                select max(FinPeriodID)
+                                from db_fmm.dbo.tb_InventoryBalance
+                            )
+                        group by siteId, inventoryID, inventoryCD, InventoryName, LastReceiptDate
+                    ) as z on fif.inventoryID = z.inventoryID
+                    where ii.CompanyID = 2
+                    union
+                    -- part
+                    select distinct siteId, ii.inventoryID, ii.inventoryCD, z.inventoryName, 
+                        ii.itemClassId, ii.baseUnit, cast(ff.frame as varchar(max)) as frame, ff.id as frameId, 
+                        z.qtyOnHand, z.aging, ii.companyID
+                    from InventoryItem as ii
+                    left join fmPartFrame as fpf on ii.inventoryID = fpf.partInventoryID
+                    left join fmFrame as ff on fpf.frameId = ff.id
+                    inner join (
+                        select siteId, inventoryID, inventoryCD, InventoryName, 
+                            sum(QtyOnHand) as QtyOnHand, datediff(day, LastReceiptDate, getdate()) as Aging
+                        from db_fmm.dbo.tb_InventoryBalance
+                        where CompanyID = 2
+                            and QtyOnHand > 0
+                            and FinPeriodID = (
+                                select max(FinPeriodID)
+                                from db_fmm.dbo.tb_InventoryBalance
+                            )
+                        group by siteId, inventoryID, inventoryCD, inventoryName, lastReceiptDate
+                    ) as z on fpf.partInventoryID = z.inventoryID
+                    where ii.CompanyID = 2
+                ) as v
+                inner join ARSalesPrice as c on v.inventoryID = c.inventoryID 
+                    and v.CompanyID = c.CompanyID
+                inner join INItemClass as iic on v.itemClassId = iic.itemClassId 
+                    and v.CompanyID = iic.CompanyID
+                left join (
+                    select
+                        a.SiteID,
+                        a.CompanyID,
+                        a.InventoryID,
+                        b.InventoryCD,
+                        sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                    from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                    join AcumaticaProduction_NEW.dbo.InventoryItem as b on b.InventoryID = a.InventoryID 
+                        and a.CompanyID = b.CompanyID
+                    left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                        and c.SiteID = a.SiteID 
+                        and a.CompanyID = c.CompanyID
+                    where a.CompanyID = 2 and a.QtyAvail > 0 and a.SiteID != 1
+                    group by a.SiteID, a.CompanyID, a.InventoryID, b.InventoryCD
+                ) as avail on avail.InventoryID = v.InventoryID 
+                    and avail.SiteID = v.SiteID
+                group by v.inventoryCD, coalesce(v.qtyOnHand, 0), coalesce(avail.qtyAvailable, 0)
+            ) as x
+            group by InventoryCD,
+                inventoryName, 
+                baseUnit, 
+                frameCount,
+                frame,
+                frameId,
+                itemType,
+                aging,
+                salesPrice
         ";
 
         return $base_sql;
@@ -511,45 +571,77 @@ class Inventory_model extends CI_Model {
 
     private function _query_lubricant_coolant() {
         $sql = "
-            select cast(flf.ccn as varchar(max)) as ccn,
-                max(cast(flf.description as varchar(max))) as description,
-                max(cast(flf.category as varchar(max))) as category,
-                max(cast(flf.baseStock as varchar(max))) as baseStock,
-                max(cast(flf.serviceLife as varchar(max))) as serviceLife,
-                max(cast(flf.containerSize as varchar(max))) as containerSize,
-                max(cast(flf.containerType as varchar(max))) as containerType,
-                max(cast(flf.applicationUsed as varchar(max))) as applicationUsed,
-                max(cast(flf.isovg as varchar(max))) as isovg,
-                count(distinct cast(ff.frame as varchar(max))) as frameCount,
-                max(cast(ff.frame as varchar(max))) as frame,
-                isnull(max(tib.qtyOnHand), 0) as qtyOnHand,
-                coalesce(max(avail.qtyAvailable), 0) as qtyAvailable
-            from fmLubricantFrame as flf
-            inner join (
-                select InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
-                from db_fmm.dbo.tb_InventoryBalance
-                where CompanyID = 2
-                    and QtyOnHand > 0
-                    and FinPeriodID = (
-                        select max(FinPeriodID)
-                        from db_fmm.dbo.tb_InventoryBalance
-                        where CompanyID = 2
-                    )
-                group by InventoryID, InventoryCD, InventoryName
-            ) as tib on cast(flf.ccn as varchar(max)) = tib.InventoryCD
-            left join (
-                select
-                    a.InventoryID,
-                    sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
-                from AcumaticaProduction_NEW.dbo.INSiteStatus as a
-                left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
-                    and c.SiteID = a.SiteID 
-                    and a.CompanyID = c.CompanyID
-                where a.CompanyID = 2 and a.QtyAvail > 0
-                group by a.InventoryID
-            ) as avail on avail.InventoryID = tib.InventoryID
-            left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
-            group by cast(flf.ccn as varchar(max))
+            select ccn, 
+                description, 
+                category, 
+                baseStock, 
+                serviceLife, 
+                containerSize, 
+                containerType, 
+                applicationUsed, 
+                isovg, 
+                frameCount, 
+                frame, 
+                sum(qtyOnHand) as qtyOnHand, 
+                sum(qtyAvailable) as qtyAvailable
+            from (
+                select cast(flf.ccn as varchar(max)) as ccn,
+                    max(cast(flf.description as varchar(max))) as description,
+                    max(cast(flf.category as varchar(max))) as category,
+                    max(cast(flf.baseStock as varchar(max))) as baseStock,
+                    max(cast(flf.serviceLife as varchar(max))) as serviceLife,
+                    max(cast(flf.containerSize as varchar(max))) as containerSize,
+                    max(cast(flf.containerType as varchar(max))) as containerType,
+                    max(cast(flf.applicationUsed as varchar(max))) as applicationUsed,
+                    max(cast(flf.isovg as varchar(max))) as isovg,
+                    count(distinct cast(ff.frame as varchar(max))) as frameCount,
+                    max(cast(ff.frame as varchar(max))) as frame,
+                    coalesce(tib.qtyOnHand, 0) as qtyOnHand,
+                    coalesce(avail.qtyAvailable, 0) as qtyAvailable
+                from fmLubricantFrame as flf
+                inner join (
+                    select SiteID, InventoryID, InventoryCD, InventoryName, sum(QtyOnHand) as QtyOnHand
+                    from db_fmm.dbo.tb_InventoryBalance
+                    where CompanyID = 2
+                        and QtyOnHand > 0
+                        and FinPeriodID = (
+                            select max(FinPeriodID)
+                            from db_fmm.dbo.tb_InventoryBalance
+                            where CompanyID = 2
+                        )
+                    group by SiteID, InventoryID, InventoryCD, InventoryName
+                ) as tib on cast(flf.ccn as varchar(max)) = tib.InventoryCD
+                left join (
+                    select
+                        a.SiteID,
+                        a.CompanyID,
+                        a.InventoryID,
+                        sum(a.QtyAvail - c.QtyPlan) as QtyAvailable
+                    from AcumaticaProduction_NEW.dbo.INSiteStatus as a
+                    left join AcumaticaProduction_NEW.dbo.ttvINSiteStatus as c on c.InventoryID = a.InventoryID 
+                        and c.SiteID = a.SiteID 
+                        and a.CompanyID = c.CompanyID
+                    where a.CompanyID = 2 
+                        and a.QtyAvail > 0 
+                        and a.SiteID != 1
+                    group by a.SiteID,
+                        a.CompanyID,
+                        a.InventoryID
+                ) as avail on avail.InventoryID = tib.InventoryID and avail.SiteID = tib.SiteID
+                left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
+                group by cast(flf.ccn as varchar(max)), coalesce(tib.qtyOnHand, 0), coalesce(avail.qtyAvailable, 0)
+            ) as x 
+            group by ccn, 
+                description, 
+                category, 
+                baseStock, 
+                serviceLife, 
+                containerSize, 
+                containerType, 
+                applicationUsed, 
+                isovg, 
+                frameCount, 
+                frame
         ";
 
         return $sql;
