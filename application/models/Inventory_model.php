@@ -489,7 +489,21 @@ class Inventory_model extends CI_Model {
         return $this->db->query($sql, array($partCd))->result_array();
     }
 
-    private function _query_airend_rotary() {
+    private function _query_airend_rotary($region = null, $category = null) {
+        $where_clauses = array("1=1");
+
+        if (isset($region) && !empty(trim($region))) {
+            $escaped_region = $this->db->escape(trim($region));
+            $where_clauses[] = "cast(faf.region as varchar(100)) = $escaped_region";
+        }
+
+        if (isset($category) && !empty(trim($category))) {
+            $escaped_category = $this->db->escape(trim($category));
+            $where_clauses[] = "cast(faf.category as varchar(100)) = $escaped_category";
+        }
+
+        $where_sql = implode(" AND ", $where_clauses);
+
         $sql = "
             select cast(faf.region as varchar(100)) as region, 
                 cast(faf.category as varchar(100)) as category, 
@@ -538,13 +552,14 @@ class Inventory_model extends CI_Model {
                     )
                 group by InventoryCD
             ) as tib3 on cast(faf.rebuiltKitAirend as varchar(100)) = tib3.InventoryCd
+            where $where_sql
         ";
 
         return $sql;
     }
 
-    public function get_airend_rotary() {
-        $base_sql = $this->_query_airend_rotary();
+    public function get_airend_rotary($region = null, $category = null) {
+        $base_sql = $this->_query_airend_rotary($region, $category);
 
         $searchable_columns = array(
             'region', 'category', 'model', 'identitySize', 
@@ -569,7 +584,31 @@ class Inventory_model extends CI_Model {
         );
     }
 
-    private function _query_lubricant_coolant() {
+    public function get_lubricant_coolant_filter_options() {
+        $categories = $this->db->query("select distinct cast(category as varchar(100)) as category from fmLubricantFrame where category is not null and cast(category as varchar(100)) != '' order by category asc")->result_array();
+        $frames = $this->db->query("select distinct cast(ff.frame as varchar(100)) as frame from fmLubricantFrame as flf left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max)) where ff.frame is not null and cast(ff.frame as varchar(100)) != '' order by frame asc")->result_array();
+        
+        return array(
+            'categories' => array_column($categories, 'category'),
+            'frames' => array_column($frames, 'frame')
+        );
+    }
+
+    private function _query_lubricant_coolant($category = null, $frame = null) {
+        $where_clauses = array("1=1");
+
+        if (isset($category) && !empty(trim($category))) {
+            $escaped_category = $this->db->escape(trim($category));
+            $where_clauses[] = "cast(flf.category as varchar(100)) = $escaped_category";
+        }
+
+        if (isset($frame) && !empty(trim($frame))) {
+            $escaped_frame = $this->db->escape(trim($frame));
+            $where_clauses[] = "cast(ff.frame as varchar(100)) = $escaped_frame";
+        }
+
+        $where_sql = implode(" AND ", $where_clauses);
+
         $sql = "
             select ccn, 
                 description, 
@@ -629,6 +668,7 @@ class Inventory_model extends CI_Model {
                         a.InventoryID
                 ) as avail on avail.InventoryID = tib.InventoryID and avail.SiteID = tib.SiteID
                 left join fmFrame as ff on cast(flf.producType as varchar(max)) = cast(ff.tipeProduct as varchar(max))
+                where $where_sql
                 group by cast(flf.ccn as varchar(max)), coalesce(tib.qtyOnHand, 0), coalesce(avail.qtyAvailable, 0)
             ) as x 
             group by ccn, 
@@ -647,8 +687,8 @@ class Inventory_model extends CI_Model {
         return $sql;
     }
 
-    public function get_lubricant_coolant() {
-        $base_sql = $this->_query_lubricant_coolant();
+    public function get_lubricant_coolant($category = null, $frame = null) {
+        $base_sql = $this->_query_lubricant_coolant($category, $frame);
         $searchable_columns = array(
             'ccn', 'description', 'category', 'frame', 'containerSize', 'containerType', 'applicationUsed', 'qtyOnHand', 'qtyAvailable'
         );
@@ -671,7 +711,31 @@ class Inventory_model extends CI_Model {
         return $this->db->query($sql, array($ccn))->result_array();
     }
 
-    private function _query_centac() {
+    public function get_centac_filter_options() {
+        $customers = $this->db->query("select distinct cast(customerName as varchar(255)) as customerName from AcumaticaProduction_NEW.dbo.fmCentrifugalFrame where customerName is not null and cast(customerName as varchar(255)) != '' order by customerName asc")->result_array();
+        $models = $this->db->query("select distinct cast(unitInventoryCd as varchar(255)) as unitInventoryCd from AcumaticaProduction_NEW.dbo.fmCentrifugalFrame where unitInventoryCd is not null and cast(unitInventoryCd as varchar(255)) != '' order by unitInventoryCd asc")->result_array();
+        
+        return array(
+            'customers' => array_column($customers, 'customerName'),
+            'models' => array_column($models, 'unitInventoryCd')
+        );
+    }
+
+    private function _query_centac($customer = null, $model = null) {
+        $where_clauses = array("1=1");
+
+        if (isset($customer) && !empty(trim($customer))) {
+            $escaped_cust = $this->db->escape(trim($customer));
+            $where_clauses[] = "cast(fcf.customerName as varchar(255)) = $escaped_cust";
+        }
+
+        if (isset($model) && !empty(trim($model))) {
+            $escaped_model = $this->db->escape(trim($model));
+            $where_clauses[] = "cast(fcf.unitInventoryCd as varchar(255)) = $escaped_model";
+        }
+
+        $where_sql = implode(" AND ", $where_clauses);
+
         $sql = "
             select 
                 cast(fcf.customerName as varchar(max)) as customerName, 
@@ -697,13 +761,14 @@ class Inventory_model extends CI_Model {
                     )
                 group by InventoryID, InventoryCD, InventoryName
             ) as tib on cast(fcf.partInventoryCd as varchar(max)) = tib.InventoryCD
+            where $where_sql
         ";
 
         return $sql;
     }
 
-    public function get_centac() {
-        $base_sql = $this->_query_centac();
+    public function get_centac($customer = null, $model = null) {
+        $base_sql = $this->_query_centac($customer, $model);
         $searchable_columns = array(
             'customerName', 'unitInventoryCd', 'unitSerialNumber', 
             'partInventoryCd', 'partDescription', 'reference', 'application'
