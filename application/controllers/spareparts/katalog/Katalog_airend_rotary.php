@@ -26,7 +26,9 @@
         }
 
         public function get_data() {
-            $result = $this->Inventory_model->get_airend_rotary();
+            $region = $this->input->post('region');
+            $category = $this->input->post('category');
+            $result = $this->Inventory_model->get_airend_rotary($region, $category);
             echo json_encode($result);
         }
     }

@@ -2,6 +2,30 @@
 <div class="table-card">
     <div class="table-header">
         <div class="table-title">Airend Rotary Catalog</div>
+        <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="regionFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Region:</label>
+                <div style="width: 180px;">
+                    <select id="regionFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua region</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="categoryFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Category:</label>
+                <div style="width: 220px;">
+                    <select id="categoryFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua category</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="customSearchInput" placeholder="Cari Model, CCN, Size...">
+            </div>
+        </div>
     </div>
 
     <!-- TABLE -->
@@ -31,6 +55,30 @@
 </div>
 
 <style>
+    .select2-container--bootstrap4 .select2-selection {
+        border-radius: 8px !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+        background-color: var(--bg-input, #F8FAFC) !important;
+        font-size: 0.83rem !important;
+        min-height: 34px !important;
+        height: 34px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        color: var(--text-primary, #0F172A) !important;
+        padding-left: 0.75rem !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+        color: var(--text-secondary, #64748B) !important;
+        line-height: 32px !important;
+    }
+    .select2-dropdown {
+        font-size: 0.83rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+    }
+
     .cat-badge-light {
         display: inline-block;
         background-color: #F1F5F9;
@@ -98,12 +146,28 @@
 
         let regionSelect = $('#regionFilter');
         regions.forEach(r => {
-            regionSelect.append(`<option value="${r}">${r}</option>`);
+            if (r) {
+                regionSelect.append(`<option value="${r}">${r}</option>`);
+            }
         });
 
         let categorySelect = $('#categoryFilter');
         categories.forEach(c => {
-            categorySelect.append(`<option value="${c}">${c}</option>`);
+            if (c) {
+                categorySelect.append(`<option value="${c}">${c}</option>`);
+            }
+        });
+
+        $('#regionFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua region',
+            allowClear: true
+        });
+
+        $('#categoryFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua category',
+            allowClear: true
         });
 
         let airendTable = $('#AirendRotaryTable')
@@ -115,13 +179,17 @@
             .DataTable({
                 ajax: {
                     url: getAirendDataUrl,
-                    type: 'POST'
+                    type: 'POST',
+                    data: function(d) {
+                        d.region = $('#regionFilter').val();
+                        d.category = $('#categoryFilter').val();
+                    }
                 },
                 serverSide: true,
                 processing: true,
                 bFilter: true,
                 bAutoWidth: false,
-                dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+                dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 ordering: true,
@@ -230,5 +298,14 @@
                     }
                 },
             });
+
+        // Search Input
+        $('#customSearchInput').on('keyup', function() {
+            airendTable.search(this.value).draw();
+        });
+
+        $('#regionFilter, #categoryFilter').on('change', function() {
+            airendTable.ajax.reload();
+        });
     });
 </script>
