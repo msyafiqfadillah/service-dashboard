@@ -9,6 +9,8 @@ class Katalog_lubricant_coolant extends CI_Controller {
     }
 
     public function index() {
+        $filter_options = $this->Inventory_model->get_lubricant_coolant_filter_options();
+
         $this->load->view('layout/site_tpl', array(
             "title" => "Katalog Lubricant & Coolant - FMM Population Unit & Part",
             "page_title" => "Katalog Lubricant & Coolant",
@@ -18,13 +20,17 @@ class Katalog_lubricant_coolant extends CI_Controller {
             "data" => array(
                 "get_data_url" => site_url('spareparts/katalog/katalog_lubricant_coolant/get_data'),
                 "get_lubricant_details_url" => site_url('spareparts/katalog/katalog_lubricant_coolant/get_lubricant_details'),
-                "populasi_unit_url" => site_url('spareparts/katalog/katalog_lubricant_coolant/get_populasi_unit')
+                "populasi_unit_url" => site_url('spareparts/katalog/katalog_lubricant_coolant/get_populasi_unit'),
+                "categories" => $filter_options['categories'],
+                "frames" => $filter_options['frames']
             )
         ));
     }
 
     public function get_data() {
-        $result = $this->Inventory_model->get_lubricant_coolant();
+        $category = $this->input->post('category');
+        $frame = $this->input->post('frame');
+        $result = $this->Inventory_model->get_lubricant_coolant($category, $frame);
         echo json_encode($result);
     }
 

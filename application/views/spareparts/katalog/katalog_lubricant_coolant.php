@@ -2,6 +2,30 @@
 <div class="table-card">
     <div class="table-header">
         <div class="table-title">Lubricant & Coolant Catalog</div>
+        <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="categoryFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Category:</label>
+                <div style="width: 220px;">
+                    <select id="categoryFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua category</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="frameFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Frame:</label>
+                <div style="width: 200px;">
+                    <select id="frameFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua frame</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="customSearchInput" placeholder="Cari CCN, Deskripsi, Frame...">
+            </div>
+        </div>
     </div>
 
     <table id="KatalogLubricantList">
@@ -66,6 +90,30 @@
 </div>
 
 <style>
+    .select2-container--bootstrap4 .select2-selection {
+        border-radius: 8px !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+        background-color: var(--bg-input, #F8FAFC) !important;
+        font-size: 0.83rem !important;
+        min-height: 34px !important;
+        height: 34px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        color: var(--text-primary, #0F172A) !important;
+        padding-left: 0.75rem !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+        color: var(--text-secondary, #64748B) !important;
+        line-height: 32px !important;
+    }
+    .select2-dropdown {
+        font-size: 0.83rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+    }
+
     .badge-cat {
         display: inline-block;
         background-color: #F1F5F9;
@@ -97,6 +145,36 @@
     `;
 
     const generate_lubricant_coolant = () => {
+        // Populate Category and Frame filter dropdowns
+        const categories = <?= json_encode($data['categories'] ?? []) ?>;
+        const frames = <?= json_encode($data['frames'] ?? []) ?>;
+
+        let categorySelect = $('#categoryFilter');
+        categories.forEach(c => {
+            if (c) {
+                categorySelect.append(`<option value="${c}">${c}</option>`);
+            }
+        });
+
+        let frameSelect = $('#frameFilter');
+        frames.forEach(f => {
+            if (f) {
+                frameSelect.append(`<option value="${f}">${f}</option>`);
+            }
+        });
+
+        $('#categoryFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua category',
+            allowClear: true
+        });
+
+        $('#frameFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua frame',
+            allowClear: true
+        });
+
         const table = $('#KatalogLubricantList')
             .on('processing.dt', function (e, settings, processing) {
                 if (processing) {
@@ -106,7 +184,11 @@
             .DataTable({                   
             ajax: {
                 url: '<?php echo $data["get_data_url"]; ?>',
-                type: "POST"
+                type: "POST",
+                data: function(d) {
+                    d.category = $('#categoryFilter').val();
+                    d.frame = $('#frameFilter').val();
+                }
             },
             serverSide: true,
             processing: true, 
@@ -114,7 +196,7 @@
             bAutoWidth: false,
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
-            dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+            dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
             order: [[0, 'asc']],
             columns: [
                 { 
@@ -236,6 +318,10 @@
         // Search Input
         $('#customSearchInput').on('keyup', function() {
             table.search($(this).val()).draw();
+        });
+
+        $('#categoryFilter, #frameFilter').on('change', function() {
+            table.ajax.reload();
         });
     };
 
