@@ -28,7 +28,8 @@ class Katalog_centac extends CI_Controller {
     public function get_data() {
         $customer = $this->input->post('customer');
         $model = $this->input->post('model');
-        $result = $this->Inventory_model->get_centac($customer, $model);
+        $stockStatus = $this->input->post('stockStatus');
+        $result = $this->Inventory_model->get_centac($customer, $model, $stockStatus);
         echo json_encode($result);
     }
 }

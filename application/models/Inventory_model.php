@@ -721,7 +721,7 @@ class Inventory_model extends CI_Model {
         );
     }
 
-    private function _query_centac($customer = null, $model = null) {
+    private function _query_centac($customer = null, $model = null, $stockStatus = null) {
         $where_clauses = array("1=1");
 
         if (isset($customer) && !empty(trim($customer))) {
@@ -732,6 +732,15 @@ class Inventory_model extends CI_Model {
         if (isset($model) && !empty(trim($model))) {
             $escaped_model = $this->db->escape(trim($model));
             $where_clauses[] = "cast(fcf.unitInventoryCd as varchar(255)) = $escaped_model";
+        }
+
+        if (isset($stockStatus) && !empty(trim($stockStatus))) {
+            $status = trim($stockStatus);
+            if ($status === 'ready') {
+                $where_clauses[] = "isnull(tib.QtyOnHand, 0) > 0";
+            } else if ($status === 'empty') {
+                $where_clauses[] = "isnull(tib.QtyOnHand, 0) <= 0";
+            }
         }
 
         $where_sql = implode(" AND ", $where_clauses);
@@ -767,8 +776,8 @@ class Inventory_model extends CI_Model {
         return $sql;
     }
 
-    public function get_centac($customer = null, $model = null) {
-        $base_sql = $this->_query_centac($customer, $model);
+    public function get_centac($customer = null, $model = null, $stockStatus = null) {
+        $base_sql = $this->_query_centac($customer, $model, $stockStatus);
         $searchable_columns = array(
             'customerName', 'unitInventoryCd', 'unitSerialNumber', 
             'partInventoryCd', 'partDescription', 'reference', 'application'

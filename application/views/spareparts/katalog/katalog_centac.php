@@ -5,7 +5,7 @@
         <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
                 <label for="customerFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Customer:</label>
-                <div style="width: 220px;">
+                <div style="width: 200px;">
                     <select id="customerFilter" class="form-control select2-filter" style="width: 100%;">
                         <option value="">Semua Customer</option>
                     </select>
@@ -14,9 +14,20 @@
 
             <div style="display: flex; align-items: center; gap: 0.4rem;">
                 <label for="modelFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Model:</label>
-                <div style="width: 180px;">
+                <div style="width: 160px;">
                     <select id="modelFilter" class="form-control select2-filter" style="width: 100%;">
                         <option value="">Semua Model</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="stockFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Stock:</label>
+                <div style="width: 150px;">
+                    <select id="stockFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua Stok</option>
+                        <option value="ready">Ready Stock (> 0)</option>
+                        <option value="empty">Stok Kosong (= 0)</option>
                     </select>
                 </div>
             </div>
@@ -140,6 +151,13 @@
             allowClear: true
         });
 
+        $('#stockFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua Stok',
+            allowClear: true,
+            minimumResultsForSearch: Infinity
+        });
+
         const table = $('#KatalogCentacList')
             .on('processing.dt', function (e, settings, processing) {
                 if (processing) {
@@ -153,6 +171,7 @@
                 data: function(d) {
                     d.customer = $('#customerFilter').val();
                     d.model = $('#modelFilter').val();
+                    d.stockStatus = $('#stockFilter').val();
                 }
             },
             serverSide: true,
@@ -270,7 +289,7 @@
             table.search($(this).val()).draw();
         });
 
-        $('#customerFilter, #modelFilter').on('change', function() {
+        $('#customerFilter, #modelFilter, #stockFilter').on('change', function() {
             table.ajax.reload();
         });
     };
