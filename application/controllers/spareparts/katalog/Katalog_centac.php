@@ -9,6 +9,8 @@ class Katalog_centac extends CI_Controller {
     }
 
     public function index() {
+        $filter_options = $this->Inventory_model->get_centac_filter_options();
+
         $this->load->view('layout/site_tpl', array(
             "title" => "Centac Catalog - FMM Population Unit & Part",
             "page_title" => "Centac Catalog",
@@ -16,13 +18,17 @@ class Katalog_centac extends CI_Controller {
             "active_menu" => "spareparts/katalog/katalog_centac",
             "content" => "spareparts/katalog/katalog_centac",
             "data" => array(
-                "get_data_url" => site_url('spareparts/katalog/katalog_centac/get_data')
+                "get_data_url" => site_url('spareparts/katalog/katalog_centac/get_data'),
+                "customers" => $filter_options['customers'],
+                "models" => $filter_options['models']
             )
         ));
     }
 
     public function get_data() {
-        $result = $this->Inventory_model->get_centac();
+        $customer = $this->input->post('customer');
+        $model = $this->input->post('model');
+        $result = $this->Inventory_model->get_centac($customer, $model);
         echo json_encode($result);
     }
 }

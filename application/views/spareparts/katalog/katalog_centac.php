@@ -2,6 +2,30 @@
 <div class="table-card">
     <div class="table-header">
         <div class="table-title">Centac Catalog</div>
+        <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="customerFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Customer:</label>
+                <div style="width: 220px;">
+                    <select id="customerFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua Customer</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="modelFilter" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Model:</label>
+                <div style="width: 180px;">
+                    <select id="modelFilter" class="form-control select2-filter" style="width: 100%;">
+                        <option value="">Semua Model</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="customSearchInput" placeholder="Cari Part No, Deskripsi, Customer...">
+            </div>
+        </div>
     </div>
 
     <table id="KatalogCentacList">
@@ -28,6 +52,30 @@
 </div>
 
 <style>
+    .select2-container--bootstrap4 .select2-selection {
+        border-radius: 8px !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+        background-color: var(--bg-input, #F8FAFC) !important;
+        font-size: 0.83rem !important;
+        min-height: 34px !important;
+        height: 34px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 32px !important;
+        color: var(--text-primary, #0F172A) !important;
+        padding-left: 0.75rem !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+        color: var(--text-secondary, #64748B) !important;
+        line-height: 32px !important;
+    }
+    .select2-dropdown {
+        font-size: 0.83rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--border-color, #E2E8F0) !important;
+    }
+
     #KatalogCentacList {
         width: 100% !important;
     }
@@ -62,6 +110,36 @@
     `;
 
     const generate_katalog_centac = () => {
+        // Populate Customer and Model filter dropdowns
+        const customers = <?= json_encode($data['customers'] ?? []) ?>;
+        const models = <?= json_encode($data['models'] ?? []) ?>;
+
+        let customerSelect = $('#customerFilter');
+        customers.forEach(c => {
+            if (c) {
+                customerSelect.append(`<option value="${c}">${c}</option>`);
+            }
+        });
+
+        let modelSelect = $('#modelFilter');
+        models.forEach(m => {
+            if (m) {
+                modelSelect.append(`<option value="${m}">${m}</option>`);
+            }
+        });
+
+        $('#customerFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua Customer',
+            allowClear: true
+        });
+
+        $('#modelFilter').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Semua Model',
+            allowClear: true
+        });
+
         const table = $('#KatalogCentacList')
             .on('processing.dt', function (e, settings, processing) {
                 if (processing) {
@@ -71,7 +149,11 @@
             .DataTable({                   
             ajax: {
                 url: '<?php echo $data["get_data_url"]; ?>',
-                type: "POST"
+                type: "POST",
+                data: function(d) {
+                    d.customer = $('#customerFilter').val();
+                    d.model = $('#modelFilter').val();
+                }
             },
             serverSide: true,
             processing: true, 
@@ -79,7 +161,7 @@
             bAutoWidth: false,
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
-            dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+            dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
             order: [[0, 'asc']],
             columns: [
                 { 
@@ -186,6 +268,10 @@
         // Search Input
         $('#customSearchInput').on('keyup', function() {
             table.search($(this).val()).draw();
+        });
+
+        $('#customerFilter, #modelFilter').on('change', function() {
+            table.ajax.reload();
         });
     };
 
