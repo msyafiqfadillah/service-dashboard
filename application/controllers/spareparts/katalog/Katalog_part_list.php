@@ -20,7 +20,8 @@
                     "populasi_unit_url" => site_url('spareparts/katalog/katalog_part_list/get_populasi_unit'),
                     "get_part_details_url" => site_url('spareparts/katalog/katalog_part_list/get_part_details'),
                     "get_quotation_details_url" => site_url('spareparts/katalog/katalog_part_list/get_quotation_details'),
-                    "frames" => $this->Inventory_model->get_part_frames()
+                    "frames" => $this->Inventory_model->get_part_frames(),
+                    "quotation_statuses" => $this->Inventory_model->get_quotation_statuses()
                 )
             ));
         }
@@ -51,7 +52,8 @@
         public function get_quotation_details() {
             $partCd = $this->input->post('partCd');
             $year = $this->input->post('year') ? $this->input->post('year') : date('Y');
-            $result = $this->Inventory_model->get_quotation_details($partCd, $year);
+            $status = $this->input->post('status');
+            $result = $this->Inventory_model->get_quotation_details($partCd, $year, $status);
 
             echo json_encode($result);
         }

@@ -203,9 +203,40 @@ class Inventory_model extends CI_Model {
         return $result;
     }
 
-    public function get_quotation_details($partCd, $year = null) {
-        if (empty($partCd)) {
+    public function get_quotation_statuses() {
+        try {
+            if (!$this->pgsql) {
+                $this->pgsql = $this->load->database('pgsql', TRUE);
+            }
+            $sql = "
+                SELECT DISTINCT 
+                    q.id as id, 
+                    q.quotation_status_code as status_code 
+                FROM quotation_status q 
+                WHERE q.id IN (1, 2, 3, 4)
+                ORDER BY q.id ASC
+            ";
+            return $this->pgsql->query($sql)->result_array();
+        } catch (Exception $e) {
+            log_message('error', 'PostgreSQL get_quotation_statuses Error: ' . $e->getMessage());
             return array();
+        }
+    }
+
+    public function get_quotation_details($partCd, $year = null, $status = null) {
+        $requestData = $this->input->post();
+        $draw = isset($requestData['draw']) ? intval($requestData['draw']) : 1;
+        $start = isset($requestData['start']) ? intval($requestData['start']) : 0;
+        $length = isset($requestData['length']) ? intval($requestData['length']) : 10;
+        $searchValue = isset($requestData['search']['value']) ? trim($requestData['search']['value']) : '';
+
+        if (empty($partCd)) {
+            return array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => array()
+            );
         }
 
         try {
@@ -220,7 +251,61 @@ class Inventory_model extends CI_Model {
                 $whereYear = " AND q.transaction_year = '$escapedYear'";
             }
 
-            $sql = "
+            $whereStatus = " AND q.quotation_status_id in (1, 2, 3, 4)";
+            if (!empty($status)) {
+                $escapedStatus = (int)$status;
+                $whereStatus = " AND q.quotation_status_id = '$escapedStatus'";
+            }
+
+            $base_where = "
+                WHERE 
+                    p.product_code = '$cleanPartCd'
+                    $whereYear
+                    $whereStatus
+                    AND q.row_status = 0 
+                    AND q.employee_id is not null 
+                    AND q.proportion_id is null
+            ";
+
+            $base_from = "
+                FROM 
+                    vw_quotations as q  
+                LEFT JOIN 
+                    groups g ON q.product_owner_id = g.id
+                JOIN 
+                    quotation_details qd on qd.quotation_id = q.id and qd.row_status = 0
+                LEFT JOIN 
+                    products p ON qd.product_id = p.id
+                LEFT JOIN 
+                    InventoryVendorInfo iv ON iv.InventoryCD = p.product_code 
+                LEFT JOIN 
+                    branches b ON q.branch_id = b.id
+                LEFT JOIN 
+                    quotation_status qs ON q.quotation_status_id = qs.id
+            ";
+
+            $base_group_by = "
+                GROUP BY 
+                    p.product_code,
+                    p.product_name,
+                    q.id,
+                    q.quotation_no_manual,
+                    b.branch_initial,
+                    q.group_initial,
+                    g.group_initial,
+                    q.quotation_date,
+                    q.quotation_status_id,
+                    q.quotation_status_code,
+                    q.customer_name,
+                    q.employee_name,
+                    qd.quotation_price,
+                    qd.quotation_price * q.idr_value,
+                    iv.vendor,
+                    iv.typeitem,
+                    iv.typeproduct
+            ";
+
+            $aggregated_query = "
                 SELECT 
                     p.product_code,
                     p.product_name,
@@ -241,52 +326,77 @@ class Inventory_model extends CI_Model {
                     iv.vendor,
                     iv.typeitem,
                     iv.typeproduct
-                FROM 
-                    vw_quotations as q  
-                LEFT JOIN 
-                    groups g ON q.product_owner_id = g.id
-                JOIN 
-                    quotation_details qd on qd.quotation_id = q.id and qd.row_status = 0
-                LEFT JOIN 
-                    products p ON qd.product_id = p.id
-                LEFT JOIN 
-                    InventoryVendorInfo iv ON iv.InventoryCD = p.product_code 
-                LEFT JOIN 
-                    branches b ON q.branch_id = b.id
-                LEFT JOIN 
-                    quotation_status qs ON q.quotation_status_id = qs.id
-                WHERE 
-                    p.product_code = '$cleanPartCd'
-                    $whereYear
-                    AND q.row_status = 0 
-                    AND q.quotation_status_id in (1, 2, 3, 4)
-                    AND q.employee_id is not null 
-                    AND q.proportion_id is null
-                GROUP BY 
-                    p.product_code,
-                    p.product_name,
-                    q.id,
-                    q.quotation_no_manual,
-                    b.branch_initial,
-                    q.group_initial,
-                    g.group_initial,
-                    q.quotation_date,
-                    q.quotation_status_id,
-                    q.quotation_status_code,
-                    q.customer_name,
-                    q.employee_name,
-                    qd.quotation_price,
-                    qd.quotation_price * q.idr_value,
-                    iv.vendor,
-                    iv.typeitem,
-                    iv.typeproduct
-                ORDER BY q.quotation_date DESC
+                $base_from
+                $base_where
+                $base_group_by
             ";
 
-            return $this->pgsql->query($sql)->result_array();
+            // 1. Total records count
+            $count_total_sql = "SELECT COUNT(*) as total FROM ($aggregated_query) as ttl";
+            $recordsTotalQuery = $this->pgsql->query($count_total_sql)->row();
+            $recordsTotal = $recordsTotalQuery ? (int)$recordsTotalQuery->total : 0;
+
+            // 2. Filter search value
+            $search_where = "";
+            if (!empty($searchValue)) {
+                $escapedSearch = str_replace("'", "''", $searchValue);
+                $search_where = " WHERE 
+                    CAST(quotation_no_manual AS VARCHAR) ILIKE '%$escapedSearch%' OR
+                    CAST(customer_name AS VARCHAR) ILIKE '%$escapedSearch%' OR
+                    CAST(employee_name AS VARCHAR) ILIKE '%$escapedSearch%' OR
+                    CAST(branch_initial AS VARCHAR) ILIKE '%$escapedSearch%' OR
+                    CAST(group_initial AS VARCHAR) ILIKE '%$escapedSearch%' OR
+                    CAST(quotation_status_code AS VARCHAR) ILIKE '%$escapedSearch%'
+                ";
+            }
+
+            $count_filtered_sql = "SELECT COUNT(*) as total FROM ($aggregated_query) as filtered_tbl $search_where";
+            $recordsFilteredQuery = $this->pgsql->query($count_filtered_sql)->row();
+            $recordsFiltered = $recordsFilteredQuery ? (int)$recordsFilteredQuery->total : 0;
+
+            // 3. Ordering
+            $column_map = array(
+                0 => 'quotation_no_manual',
+                1 => 'quotation_date',
+                2 => 'quotation_status_code',
+                3 => 'customer_name',
+                4 => 'employee_name',
+                5 => 'branch_initial',
+                6 => 'group_initial',
+                7 => 'qty',
+                8 => 'quotation_price',
+                9 => 'total_amount'
+            );
+
+            $order_col_idx = isset($requestData['order']['0']['column']) ? (int)$requestData['order']['0']['column'] : 1;
+            $order_dir = (isset($requestData['order']['0']['dir']) && strtoupper($requestData['order']['0']['dir']) === 'ASC') ? 'ASC' : 'DESC';
+
+            $order_by_col = isset($column_map[$order_col_idx]) ? $column_map[$order_col_idx] : 'quotation_date';
+            $order_sql = " ORDER BY $order_by_col $order_dir";
+
+            // 4. Pagination (LIMIT & OFFSET)
+            $limit_sql = "";
+            if ($length > 0) {
+                $limit_sql = " LIMIT $length OFFSET $start";
+            }
+
+            $final_sql = "SELECT * FROM ($aggregated_query) as final_tbl $search_where $order_sql $limit_sql";
+            $data = $this->pgsql->query($final_sql)->result_array();
+
+            return array(
+                "draw" => $draw,
+                "recordsTotal" => $recordsTotal,
+                "recordsFiltered" => $recordsFiltered,
+                "data" => $data
+            );
         } catch (Exception $e) {
             log_message('error', 'PostgreSQL get_quotation_details Error: ' . $e->getMessage());
-            return array();
+            return array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => array()
+            );
         }
     }
 

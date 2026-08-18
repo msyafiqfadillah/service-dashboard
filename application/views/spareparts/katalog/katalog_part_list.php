@@ -155,6 +155,26 @@
                 </button>
             </div>
             <div class="modal-body" style="padding: 1.25rem; overflow-x: auto;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <label for="filterQuotationStatus" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Status Penawaran:</label>
+                        <div style="width: 180px;">
+                            <select id="filterQuotationStatus" class="form-control" style="font-size: 0.8rem; height: 34px; border-radius: 8px;">
+                                <option value="">Semua Status</option>
+                                <?php if (isset($data['quotation_statuses']) && !empty($data['quotation_statuses'])): ?>
+                                    <?php foreach ($data['quotation_statuses'] as $st): ?>
+                                        <option value="<?= $st['id'] ?>"><?= htmlspecialchars($st['status_code']) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="customSearchQuotationInput" placeholder="Cari No. Quotation, Customer...">
+                    </div>
+                </div>
                 <table id="tableQuotationDetails" class="table table-striped table-bordered" style="width: 100%; font-size: 0.8rem;">
                     <thead>
                         <tr style="background-color: var(--bg-hover, #F8FAFC);">
@@ -171,7 +191,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- AJAX Data -->
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
+                                <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -517,32 +542,48 @@
         });
 
         let quotationTable = null;
+        let currentPartCd = null;
+        let currentYear = null;
 
         $(document).on('click', '.btn-view-quotation-details', function() {
-            const partCd = $(this).attr('data-part');
-            const year = $('#filterYear').val();
-            if (!partCd) return;
+            currentPartCd = $(this).attr('data-part');
+            currentYear = $('#filterYear').val();
+            if (!currentPartCd) return;
 
-            $('#modalQuotationPartCodeSub').text('Part No: ' + partCd + ' (Tahun ' + year + ')');
+            $('#filterQuotationStatus').val('');
+            $('#customSearchQuotationInput').val('');
+            $('#modalQuotationPartCodeSub').text('Part No: ' + currentPartCd + ' (Tahun ' + currentYear + ')');
             $('#quotationDetailsModal').modal('show');
 
             if ($.fn.DataTable.isDataTable('#tableQuotationDetails')) {
                 $('#tableQuotationDetails').DataTable().destroy();
             }
 
-            quotationTable = $('#tableQuotationDetails').DataTable({
+            quotationTable = $('#tableQuotationDetails')
+                .off('processing.dt')
+                .on('processing.dt', function (e, settings, processing) {
+                    if (processing) {
+                        $('#tableQuotationDetails tbody').html(loadingHtml);
+                    }
+                })
+                .DataTable({
                 ajax: {
                     url: '<?php echo $data["get_quotation_details_url"]; ?>',
                     type: 'POST',
-                    data: { partCd: partCd, year: year },
-                    dataSrc: ''
+                    data: function(d) {
+                        d.partCd = currentPartCd;
+                        d.year = currentYear;
+                        d.status = $('#filterQuotationStatus').val();
+                    }
                 },
+                serverSide: true,
+                processing: true,
                 bFilter: true,
                 autoWidth: false,
                 pageLength: 10,
                 lengthMenu: [10, 25, 50],
                 order: [[1, 'desc']],
-                dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+                dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
                 columns: [
                     { 
                         data: "quotation_no_manual",
@@ -601,6 +642,18 @@
                     }
                 },
             });
+        });
+
+        $('#filterQuotationStatus').on('change', function() {
+            if ($.fn.DataTable.isDataTable('#tableQuotationDetails')) {
+                $('#tableQuotationDetails').DataTable().ajax.reload();
+            }
+        });
+
+        $('#customSearchQuotationInput').on('keyup', function() {
+            if (quotationTable && $.fn.DataTable.isDataTable('#tableQuotationDetails')) {
+                quotationTable.search(this.value).draw();
+            }
         });
 
         $(document).on('click', '.btn-copy-info', function() {
