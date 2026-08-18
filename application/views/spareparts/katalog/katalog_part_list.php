@@ -147,7 +147,7 @@
         <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
             <div class="modal-header" style="background-color: var(--bg-hover, #F8FAFC); border-bottom: 1px solid var(--border-color, #E2E8F0); padding: 1rem 1.25rem;">
                 <div>
-                    <h5 class="modal-title" id="quotationDetailsModalLabel" style="font-size: 1rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Detail Quotation Penawaran</h5>
+                    <h5 class="modal-title" id="quotationDetailsModalLabel" style="font-size: 1rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Detail Penawaran</h5>
                     <span id="modalQuotationPartCodeSub" style="font-size: 0.8rem; color: var(--text-secondary, #64748B); font-weight: 600;">-</span>
                 </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 1.25rem; color: var(--text-secondary, #64748B); opacity: 0.8; outline: none; border: none; background: transparent;">
