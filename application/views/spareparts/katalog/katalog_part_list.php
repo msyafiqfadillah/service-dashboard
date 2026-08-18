@@ -82,30 +82,32 @@
         </div>
     </div>
 
-    <table id="KatalogPartList">
-        <thead>
-            <tr>
-                <th>Part No</th>
-                <th>Description</th>
-                <th>Frame</th>
-                <th>Assembly</th>
-                <th>Application</th>
-                <th style="text-align: center; width: 90px;">Stock</th>
-                <th style="text-align: center; width: 90px;">Stock Avail</th>
-                <th style="text-align: center; width: 110px;">Total Penawaran</th>
-                <th style="text-align: right; width: 140px;">Nilai Penawaran</th>
-                <th style="text-align: center;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
-                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive" style="overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;">
+        <table id="KatalogPartList" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Part No</th>
+                    <th>Description</th>
+                    <th>Frame</th>
+                    <th>Assembly</th>
+                    <th>Application</th>
+                    <th style="text-align: center; width: 80px;">Stock</th>
+                    <th style="text-align: center; width: 80px;">Stock Avail</th>
+                    <th style="text-align: center; width: 100px;">Total Penawaran</th>
+                    <th style="text-align: right; width: 120px;">Nilai Penawaran</th>
+                    <th style="text-align: center; width: 60px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- MODAL FOR PART DETAILS -->
@@ -219,31 +221,31 @@
                 { 
                     data: "partDesc",
                     render: function(data) {
-                        return `<span class="cell-ellipsis" style="max-width: 180px;" title="${data || ''}">${data || ''}</span>`;
+                        return `<span class="cell-ellipsis" style="max-width: 150px;" title="${data || ''}">${data || ''}</span>`;
                     }
                 },
                 { 
                     data: "frame",
                     render: function(data, type, row) {
                         if (row.frameCount > 1) {
-                            return `<span class="cell-ellipsis btn-view-part-frames" style="max-width: 250px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-part="${row.partCd}" title="Klik untuk lihat semua frame">${data || ''}...</span>`;
+                            return `<span class="cell-ellipsis btn-view-part-frames" style="max-width: 170px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-part="${row.partCd}" title="Klik untuk lihat semua frame">${data || ''}...</span>`;
                         }
-                        return `<span class="cell-ellipsis" style="max-width: 250px;" title="${data || ''}">${data || ''}</span>`;
+                        return `<span class="cell-ellipsis" style="max-width: 170px;" title="${data || ''}">${data || ''}</span>`;
                     }
                 },
                 { 
                     data: "assemblySection",
                     render: function(data, type, row) {
                         if (row.assemblyCount > 1) {
-                            return `<span class="cell-ellipsis btn-view-part-assemblies" style="max-width: 150px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-part="${row.partCd}" title="Klik untuk lihat semua assembly">${data || ''}...</span>`;
+                            return `<span class="cell-ellipsis btn-view-part-assemblies" style="max-width: 130px; cursor: pointer; color: var(--accent-blue, #3B82F6); font-weight: 600;" data-part="${row.partCd}" title="Klik untuk lihat semua assembly">${data || ''}...</span>`;
                         }
-                        return `<span class="cell-ellipsis" style="max-width: 150px;" title="${data || ''}">${data || ''}</span>`;
+                        return `<span class="cell-ellipsis" style="max-width: 130px;" title="${data || ''}">${data || ''}</span>`;
                     }
                 },
                 { 
                     data: "application",
                     render: function(data) {
-                        return `<span class="cell-ellipsis" style="max-width: 150px;" title="${data || ''}">${data || ''}</span>`;
+                        return `<span class="cell-ellipsis" style="max-width: 130px;" title="${data || ''}">${data || ''}</span>`;
                     }
                 },
                 { 

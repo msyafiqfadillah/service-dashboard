@@ -520,6 +520,8 @@ body {
     padding: 1.25rem;
     box-shadow: var(--shadow-sm);
     position: relative;
+    overflow-x: auto;
+    max-width: 100%;
 }
 
 .table-header {
