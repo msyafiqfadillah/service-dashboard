@@ -139,6 +139,44 @@
     </div>
 </div>
 
+<!-- MODAL FOR QUOTATION DETAILS -->
+<div class="modal fade" id="quotationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="quotationDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document" style="max-width: 1150px;">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+            <div class="modal-header" style="background-color: var(--bg-hover, #F8FAFC); border-bottom: 1px solid var(--border-color, #E2E8F0); padding: 1rem 1.25rem;">
+                <div>
+                    <h5 class="modal-title" id="quotationDetailsModalLabel" style="font-size: 1rem; font-weight: 700; color: var(--text-primary, #0F172A); margin: 0;">Detail Quotation Penawaran</h5>
+                    <span id="modalQuotationPartCodeSub" style="font-size: 0.8rem; color: var(--text-secondary, #64748B); font-weight: 600;">-</span>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 1.25rem; color: var(--text-secondary, #64748B); opacity: 0.8; outline: none; border: none; background: transparent;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1.25rem; overflow-x: auto;">
+                <table id="tableQuotationDetails" class="table table-striped table-bordered" style="width: 100%; font-size: 0.8rem;">
+                    <thead>
+                        <tr style="background-color: var(--bg-hover, #F8FAFC);">
+                            <th>No. Quotation</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Customer</th>
+                            <th>Sales/Employee</th>
+                            <th>Branch</th>
+                            <th>Group</th>
+                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: right;">Harga Satuan</th>
+                            <th style="text-align: right;">Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- AJAX Data -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php $this->load->view('spareparts/component_side_drawer', array("url_target" => $data["populasi_unit_url"])); ?>
 
 <script>
@@ -235,10 +273,10 @@
                 { 
                     data: "TotalPenawaranEPS", 
                     className: "text-center",
-                    render: function(data) {
+                    render: function(data, type, row) {
                         let val = parseInt(data) || 0;
                         if (val > 0) {
-                            return `<span class="badge-stock" style="background-color: #EFF6FF; border: 1px solid #93C5FD; color: #1D4ED8;">${val}</span>`;
+                            return `<span class="badge-stock btn-view-quotation-details" data-part="${row.partCd}" style="background-color: #EFF6FF; border: 1px solid #93C5FD; color: #1D4ED8; cursor: pointer;" title="Klik untuk lihat detail quotation">${val}</span>`;
                         }
                         return `<span style="color: var(--text-secondary); font-size: 0.8rem;">0</span>`;
                     }
@@ -472,6 +510,93 @@
                         </tr>
                     `);
                 }
+            });
+        });
+
+        let quotationTable = null;
+
+        $(document).on('click', '.btn-view-quotation-details', function() {
+            const partCd = $(this).attr('data-part');
+            const year = $('#filterYear').val();
+            if (!partCd) return;
+
+            $('#modalQuotationPartCodeSub').text('Part No: ' + partCd + ' (Tahun ' + year + ')');
+            $('#quotationDetailsModal').modal('show');
+
+            if ($.fn.DataTable.isDataTable('#tableQuotationDetails')) {
+                $('#tableQuotationDetails').DataTable().destroy();
+            }
+
+            quotationTable = $('#tableQuotationDetails').DataTable({
+                ajax: {
+                    url: '<?php echo $data["get_quotation_details_url"]; ?>',
+                    type: 'POST',
+                    data: { partCd: partCd, year: year },
+                    dataSrc: ''
+                },
+                bFilter: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50],
+                order: [[1, 'desc']],
+                dom: '<"dt-header-toolbar"lf>rt<"dt-footer-container"ip>',
+                columns: [
+                    { 
+                        data: "quotation_no_manual",
+                        render: function(data) {
+                            return `<span style="font-weight: 600; color: var(--accent-blue, #3B82F6);">${data || '-'}</span>`;
+                        }
+                    },
+                    { 
+                        data: "quotation_date",
+                        render: function(data) {
+                            if (!data) return '-';
+                            return data.split(' ')[0];
+                        }
+                    },
+                    { 
+                        data: "quotation_status_code",
+                        render: function(data) {
+                            return `<span class="badge badge-info" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; font-weight: 600;">${data || '-'}</span>`;
+                        }
+                    },
+                    { data: "customer_name", defaultContent: "-" },
+                    { data: "employee_name", defaultContent: "-" },
+                    { data: "branch_initial", defaultContent: "-" },
+                    { data: "group_initial", defaultContent: "-" },
+                    { 
+                        data: "qty", 
+                        className: "text-center",
+                        render: function(data) {
+                            return parseInt(data) || 0;
+                        }
+                    },
+                    { 
+                        data: "quotation_price", 
+                        className: "text-right",
+                        render: function(data) {
+                            let val = parseFloat(data) || 0;
+                            return new Intl.NumberFormat('id-ID').format(val);
+                        }
+                    },
+                    { 
+                        data: "total_amount", 
+                        className: "text-right",
+                        render: function(data) {
+                            let val = parseFloat(data) || 0;
+                            return `<span style="font-weight: 600; color: var(--text-primary);">${new Intl.NumberFormat('id-ID').format(val)}</span>`;
+                        }
+                    }
+                ],
+                language: {
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        first: '<i class="fa-solid fa-angles-left"></i>',
+                        previous: '<i class="fa-solid fa-angle-left"></i>',
+                        next: '<i class="fa-solid fa-angle-right"></i>',
+                        last: '<i class="fa-solid fa-angles-right"></i>'
+                    }
+                },
             });
         });
 

@@ -203,6 +203,93 @@ class Inventory_model extends CI_Model {
         return $result;
     }
 
+    public function get_quotation_details($partCd, $year = null) {
+        if (empty($partCd)) {
+            return array();
+        }
+
+        try {
+            if (!$this->pgsql) {
+                $this->pgsql = $this->load->database('pgsql', TRUE);
+            }
+
+            $cleanPartCd = str_replace("'", "''", trim($partCd));
+            $whereYear = "";
+            if (!empty($year)) {
+                $escapedYear = is_numeric($year) ? (int)$year : date('Y');
+                $whereYear = " AND q.transaction_year = '$escapedYear'";
+            }
+
+            $sql = "
+                SELECT 
+                    p.product_code,
+                    p.product_name,
+                    q.id as quotation_id,
+                    q.quotation_no_manual,
+                    b.branch_initial,
+                    q.group_initial,
+                    g.group_initial as group_owner,
+                    q.quotation_date,
+                    q.quotation_status_id,
+                    q.quotation_status_code,
+                    q.customer_name,
+                    q.employee_name,
+                    sum(qd.qty) as qty,
+                    qd.quotation_price,
+                    qd.quotation_price * q.idr_value as amount,
+                    sum(qd.qty * qd.quotation_price * q.idr_value) as total_amount,
+                    iv.vendor,
+                    iv.typeitem,
+                    iv.typeproduct
+                FROM 
+                    vw_quotations as q  
+                LEFT JOIN 
+                    groups g ON q.product_owner_id = g.id
+                JOIN 
+                    quotation_details qd on qd.quotation_id = q.id and qd.row_status = 0
+                LEFT JOIN 
+                    products p ON qd.product_id = p.id
+                LEFT JOIN 
+                    InventoryVendorInfo iv ON iv.InventoryCD = p.product_code 
+                LEFT JOIN 
+                    branches b ON q.branch_id = b.id
+                LEFT JOIN 
+                    quotation_status qs ON q.quotation_status_id = qs.id
+                WHERE 
+                    p.product_code = '$cleanPartCd'
+                    $whereYear
+                    AND q.row_status = 0 
+                    AND q.quotation_status_id in (1, 2, 3, 4)
+                    AND q.employee_id is not null 
+                    AND q.proportion_id is null
+                GROUP BY 
+                    p.product_code,
+                    p.product_name,
+                    q.id,
+                    q.quotation_no_manual,
+                    b.branch_initial,
+                    q.group_initial,
+                    g.group_initial,
+                    q.quotation_date,
+                    q.quotation_status_id,
+                    q.quotation_status_code,
+                    q.customer_name,
+                    q.employee_name,
+                    qd.quotation_price,
+                    qd.quotation_price * q.idr_value,
+                    iv.vendor,
+                    iv.typeitem,
+                    iv.typeproduct
+                ORDER BY q.quotation_date DESC
+            ";
+
+            return $this->pgsql->query($sql)->result_array();
+        } catch (Exception $e) {
+            log_message('error', 'PostgreSQL get_quotation_details Error: ' . $e->getMessage());
+            return array();
+        }
+    }
+
     public function get_part_frames() {
         $sql = "
             select distinct cast(ff.frame as varchar(max)) as frame
