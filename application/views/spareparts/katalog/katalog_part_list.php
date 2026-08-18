@@ -37,6 +37,20 @@
         <div class="table-title">Parts Catalog</div>
         <div class="table-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <label for="filterYear" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Tahun:</label>
+                <div style="width: 110px;">
+                    <select id="filterYear" class="form-control select2-filter" style="width: 100%;">
+                        <?php 
+                        $currYear = date('Y');
+                        for ($y = $currYear; $y >= $currYear - 5; $y--): 
+                        ?>
+                            <option value="<?= $y ?>" <?= $y == $currYear ? 'selected' : '' ?>><?= $y ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
                 <label for="filterModel" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap;">Model:</label>
                 <div style="width: 220px;">
                     <select id="filterModel" class="form-control select2-filter" style="width: 100%;">
@@ -76,14 +90,16 @@
                 <th>Frame</th>
                 <th>Assembly</th>
                 <th>Application</th>
-                <th style="text-align: center; width: 110px;">Stock</th>
-                <th style="text-align: center; width: 110px;">Stock Available</th>
+                <th style="text-align: center; width: 90px;">Stock</th>
+                <th style="text-align: center; width: 90px;">Stock Avail</th>
+                <th style="text-align: center; width: 110px;">Total Penawaran</th>
+                <th style="text-align: right; width: 140px;">Nilai Penawaran</th>
                 <th style="text-align: center;">Action</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                     <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                     <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
                 </td>
@@ -128,7 +144,7 @@
 <script>
     const loadingHtml = `
         <tr>
-            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+            <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 1.75rem; margin-bottom: 0.75rem;"></i>
                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Loading data...</div>
             </td>
@@ -149,6 +165,7 @@
                 data: function(d) {
                     d.frame = $('#filterModel').val();
                     d.stockStatus = $('#filterStock').val();
+                    d.year = $('#filterYear').val();
                 }
             },
             serverSide: true,
@@ -215,6 +232,28 @@
                         return `<span class="badge-stock ${badgeClass}">${Math.round(val)}</span>`;
                     }
                 },
+                { 
+                    data: "TotalPenawaranEPS", 
+                    className: "text-center",
+                    render: function(data) {
+                        let val = parseInt(data) || 0;
+                        if (val > 0) {
+                            return `<span class="badge-stock" style="background-color: #EFF6FF; border: 1px solid #93C5FD; color: #1D4ED8;">${val}</span>`;
+                        }
+                        return `<span style="color: var(--text-secondary); font-size: 0.8rem;">0</span>`;
+                    }
+                },
+                { 
+                    data: "TotalPenawaranPrice", 
+                    className: "text-right",
+                    render: function(data) {
+                        let val = parseFloat(data) || 0;
+                        if (val > 0) {
+                            return `<span style="font-weight: 600; color: var(--text-primary);">${new Intl.NumberFormat('id-ID').format(val)}</span>`;
+                        }
+                        return `<span style="color: var(--text-secondary); font-size: 0.8rem;">-</span>`;
+                    }
+                },
                 {
                     data: null, 
                     orderable: false,
@@ -250,6 +289,11 @@
     }
 
     $(document).ready(function () {
+        $('#filterYear').select2({
+            theme: 'bootstrap4',
+            minimumResultsForSearch: Infinity
+        });
+
         $('#filterModel').select2({
             theme: 'bootstrap4',
             placeholder: 'Semua Model',
@@ -265,7 +309,7 @@
 
         generate_katalog();
 
-        $('#filterModel, #filterStock').on('change', function() {
+        $('#filterYear, #filterModel, #filterStock').on('change', function() {
             $('#KatalogPartList').DataTable().ajax.reload();
         });
 

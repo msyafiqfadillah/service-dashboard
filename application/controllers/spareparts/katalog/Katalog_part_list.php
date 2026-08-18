@@ -27,7 +27,8 @@
         public function get_part_list() {
             $frame = $this->input->post('frame');
             $stockStatus = $this->input->post('stockStatus');
-            $result = $this->Inventory_model->get_part_list($frame, $stockStatus);
+            $year = $this->input->post('year') ? $this->input->post('year') : date('Y');
+            $result = $this->Inventory_model->get_part_list($frame, $stockStatus, $year);
 
             echo json_encode($result);
         }

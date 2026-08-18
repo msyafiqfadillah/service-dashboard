@@ -3,12 +3,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Inventory_model extends CI_Model {
 
+    protected $pgsql;
+
     public function __construct()
     {
         parent::__construct();
         
         $this->load->database();
         $this->load->library('datatable_handler');
+        try {
+            $this->pgsql = $this->load->database('pgsql', TRUE);
+        } catch (Exception $e) {
+            log_message('error', 'PostgreSQL DB Connection Error: ' . $e->getMessage());
+            $this->pgsql = null;
+        }
     }
 
     private function _query_part_list($frame = null, $stockStatus = null) {
@@ -83,13 +91,116 @@ class Inventory_model extends CI_Model {
         return $base_sql;
     }
 
-    public function get_part_list($frame = null, $stockStatus = null) {
+    public function get_part_list($frame = null, $stockStatus = null, $year = null) {
+        if (empty($year)) {
+            $year = date('Y');
+        }
+
+        $escapedYear = is_numeric($year) ? (int)$year : date('Y');
+
+        // 1. Fetch PostgreSQL EPS summary for ALL products in the selected year
+        $epsMappingTotal = array();
+        $epsMappingPrice = array();
+
+        try {
+            if (!$this->pgsql) {
+                $this->pgsql = $this->load->database('pgsql', TRUE);
+            }
+
+            $sqlEPSAll = "
+                SELECT 
+                    p.product_code,
+                    COUNT(DISTINCT q.quotation_no_manual) as total,
+                    SUM(qd.quotation_price * qd.qty) as total_price
+                FROM quotation_details qd
+                JOIN quotations q ON q.id = qd.quotation_id
+                JOIN products p ON p.id = qd.product_id
+                WHERE q.row_status = 0 
+                    AND q.transaction_year = '$escapedYear'
+                    AND q.quotation_status_id in (1, 2, 3, 4)
+                    AND q.employee_id is not null
+                    AND q.proportion_id is null
+                GROUP BY p.product_code
+            ";
+
+            $resultEPSAll = $this->pgsql->query($sqlEPSAll)->result();
+
+            foreach ($resultEPSAll as $eps) {
+                $pCode = trim($eps->product_code);
+                if ($pCode !== '') {
+                    $epsMappingTotal[$pCode] = (int)$eps->total;
+                    $epsMappingPrice[$pCode] = (float)$eps->total_price;
+                }
+            }
+        } catch (Exception $e) {
+            log_message('error', 'PostgreSQL Query Error: ' . $e->getMessage());
+        }
+
+        // 2. Check DataTables ordering parameters
+        $requestData = $this->input->post();
+        $col_idx = isset($requestData['order']['0']['column']) ? (int)$requestData['order']['0']['column'] : -1;
+        $order_dir = (isset($requestData['order']['0']['dir']) && strtoupper($requestData['order']['0']['dir']) === 'DESC') ? 'DESC' : 'ASC';
+
         $base_sql = $this->_query_part_list($frame, $stockStatus);
         $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand', 'qtyAvailable');
-        $column_order = array('partCd', 'partDesc', 'frame', 'assemblySection', 'application', 'qtyOnHand', 'qtyAvailable');
-        $default_sort = "order by partCd ASC";
+        
+        $column_order = array(
+            0 => 'partCd', 
+            1 => 'partDesc', 
+            2 => 'frame', 
+            3 => 'assemblySection', 
+            4 => 'application', 
+            5 => 'qtyOnHand', 
+            6 => 'qtyAvailable',
+            7 => null, // TotalPenawaranEPS
+            8 => null  // TotalPenawaranPrice
+        );
 
-        return $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+        $default_sort = "ORDER BY partCd ASC";
+
+        // If user wants to sort by TotalPenawaranEPS (col 7) or TotalPenawaranPrice (col 8)
+        if ($col_idx === 7 || $col_idx === 8) {
+            $cases = array();
+            $targetMapping = ($col_idx === 7) ? $epsMappingTotal : $epsMappingPrice;
+
+            foreach ($targetMapping as $code => $val) {
+                if ($val > 0) {
+                    $cleanCode = str_replace("'", "''", $code);
+                    $cases[] = "WHEN '$cleanCode' THEN $val";
+                }
+            }
+
+            if (!empty($cases)) {
+                $case_expression = "CASE [partCd] " . implode(" ", $cases) . " ELSE 0 END";
+                $default_sort = "ORDER BY " . $case_expression . " " . $order_dir . ", [partCd] ASC";
+            } else {
+                $default_sort = "ORDER BY [partCd] ASC";
+            }
+        }
+
+        $result = $this->datatable_handler->handle($base_sql, $searchable_columns, $column_order, $default_sort);
+
+        // 3. Attach EPS Total & Price to the paginated result rows
+        if (!empty($result['data'])) {
+            foreach ($result['data'] as $key => $row) {
+                $inventoryCd = is_array($row) 
+                    ? (isset($row['partCd']) ? trim($row['partCd']) : (isset($row['InventoryCD']) ? trim($row['InventoryCD']) : '')) 
+                    : (isset($row->partCd) ? trim($row->partCd) : (isset($row->InventoryCD) ? trim($row->InventoryCD) : ''));
+
+                $tot = isset($epsMappingTotal[$inventoryCd]) ? $epsMappingTotal[$inventoryCd] : 0;
+                $prc = isset($epsMappingPrice[$inventoryCd]) ? $epsMappingPrice[$inventoryCd] : 0;
+
+                if (is_array($result['data'][$key])) {
+                    $result['data'][$key]['TotalPenawaranEPS'] = $tot;
+                    $result['data'][$key]['TotalPenawaranPrice'] = $prc;
+                } else {
+                    $result['data'][$key]->TotalPenawaranEPS = $tot;
+                    $result['data'][$key]->TotalPenawaranPrice = $prc;
+                }
+            }
+        }
+
+        return $result;
     }
 
     public function get_part_frames() {
