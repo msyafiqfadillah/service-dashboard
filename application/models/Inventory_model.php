@@ -138,8 +138,8 @@ class Inventory_model extends CI_Model {
 
         // 2. Check DataTables ordering parameters
         $requestData = $this->input->post();
-        $col_idx = isset($requestData['order']['0']['column']) ? (int)$requestData['order']['0']['column'] : -1;
-        $order_dir = (isset($requestData['order']['0']['dir']) && strtoupper($requestData['order']['0']['dir']) === 'DESC') ? 'DESC' : 'ASC';
+        $col_idx = isset($requestData['order']['0']['column']) ? (int)$requestData['order']['0']['column'] : 7;
+        $order_dir = isset($requestData['order']['0']['dir']) ? (strtoupper($requestData['order']['0']['dir']) === 'ASC' ? 'ASC' : 'DESC') : 'DESC';
 
         $base_sql = $this->_query_part_list($frame, $stockStatus);
         $searchable_columns = array('partCd', 'partDesc', 'assemblySection', 'application', 'frame', 'qtyOnHand', 'qtyAvailable');

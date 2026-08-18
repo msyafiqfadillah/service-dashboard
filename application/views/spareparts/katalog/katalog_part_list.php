@@ -212,6 +212,7 @@
             bAutoWidth: false,
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
+            order: [[7, 'desc']],
             dom: '<"dt-header-toolbar"l>rt<"dt-footer-container"ip>',
             columns: [
                 { data: "partCd" },
