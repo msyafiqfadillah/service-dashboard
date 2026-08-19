@@ -10,6 +10,18 @@
     </div>
 </div>
 
+<!-- KPI TOP SUMMARY CARDS -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-val" id="kpiTotalUnits">0</div>
+        <div class="kpi-lbl">UNIT TERPASANG</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-val" id="kpiTotalCustomers">0</div>
+        <div class="kpi-lbl">CUSTOMER AKTIF</div>
+    </div>
+</div>
+
 <div class="content-area">
     <div class="dashboard-card-container">
         <div class="dashboard-section-title-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
@@ -70,6 +82,56 @@
 </div>
 
 <style>
+    /* KPI Card Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    @media (max-width: 992px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 576px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .kpi-card {
+        background-color: var(--card-bg, #FFFFFF);
+        border: 1px solid var(--border-color, #E2E8F0);
+        border-radius: 12px;
+        padding: 1.1rem 1.3rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .kpi-val {
+        font-size: 2.1rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 0.35rem;
+        color: #10B981;
+    }
+    .kpi-val.warning {
+        color: #F59E0B;
+    }
+    .kpi-val.danger {
+        color: #EF4444;
+    }
+    .kpi-lbl {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748B);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
     /* Dashboard Header & Title Layout Overrides */
     .header {
         padding: 0.65rem 0.25rem !important;
@@ -254,6 +316,9 @@
     const defaultMeta = { icon: 'fa-solid fa-building', color: '#3B82F6', bg: '#E8F0FE' };
 
     const loadDashboardData = () => {
+        $('#kpiTotalUnits').text('...');
+        $('#kpiTotalCustomers').text('...');
+
         $('#branchGrid').html(`
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue); font-size: 2rem; margin-bottom: 0.75rem;"></i>
@@ -267,6 +332,8 @@
             dataType: 'json',
             success: function (res) {
                 if (!Array.isArray(res) || res.length === 0) {
+                    $('#kpiTotalUnits').text('0');
+                    $('#kpiTotalCustomers').text('0');
                     $('#branchGrid').html(`
                         <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
                             There is no data on unit distribution.
@@ -276,12 +343,18 @@
                 }
 
                 let html = '';
+                let totalUnits = 0;
+                let totalCustomers = 0;
+
                 res.forEach(item => {
                     const code = item.BranchCD ? item.BranchCD.trim() : '-';
                     const name = branchNames[code] || code;
                     const unitsCount = parseInt(item.CountSerialNumber) || 0;
                     const customersCount = parseInt(item.CountCustomerCode) || 0;
                     const meta = branchMeta[code] || defaultMeta;
+
+                    totalUnits += unitsCount;
+                    totalCustomers += customersCount;
 
                     html += `
                         <div class="branch-card" data-branch="${code}" data-name="${name}" data-units="${unitsCount}" data-customers="${customersCount}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem;">
@@ -297,9 +370,13 @@
                     `;
                 });
 
+                $('#kpiTotalUnits').text(totalUnits.toLocaleString('id-ID'));
+                $('#kpiTotalCustomers').text(totalCustomers.toLocaleString('id-ID'));
                 $('#branchGrid').html(html);
             },
             error: function () {
+                $('#kpiTotalUnits').text('-');
+                $('#kpiTotalCustomers').text('-');
                 $('#branchGrid').html(`
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: #EF4444;">
                         Failed to load data. Please click the Refresh button.
